@@ -12,6 +12,7 @@ import seaborn as sns
 
 import tushare as ts
 import talib as tl
+import stockzie as sz
 
 from matplotlib.dates import datestr2num
 from matplotlib.finance import candlestick2_ohlc

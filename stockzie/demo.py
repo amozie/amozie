@@ -11,9 +11,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 import tushare as ts
-
-import plot as szp
-import data as szd
+import stockzie as sz
 
 
 def plotkv(code, ktype='D'):
@@ -25,10 +23,10 @@ def plotkv(code, ktype='D'):
     ax1 = fig.add_axes([0.05, 0.26, 0.93, 0.73])
     ax2 = fig.add_axes([0.05, 0.10, 0.93, 0.15])
 
-    data = szd.get(code, ktype=ktype)
+    data = sz.data.get(code, ktype=ktype)
 
-    szp.kline(ax1, data=data)
-    szp.volume(ax2, data=data)
+    sz.plot.kline(ax1, data=data)
+    sz.plot.volume(ax2, data=data)
 
     ax1.set_xticklabels([])
 

@@ -17,7 +17,7 @@ from matplotlib.dates import datestr2num
 from matplotlib.finance import candlestick2_ohlc
 from datetime import datetime, timedelta
 
-import data as szd
+import stockzie as sz
 
 FIG_SIZE = (14, 7)
 DATE_NUM = 20
@@ -33,7 +33,7 @@ def _init(code=None, data=None, ax=None, start=None, end=None, ktype='D', figsiz
     if data is None:
         if code is None:
             raise PlotException('code & data are all None')
-        data = szd.get(code, start=start, end=end, ktype=ktype)
+        data = sz.data.get(code, start=start, end=end, ktype=ktype)
     if ax is None:
         fig, ax = plt.subplots(figsize=figsize)
     return ax, data
