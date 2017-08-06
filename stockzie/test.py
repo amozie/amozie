@@ -13,21 +13,28 @@ code='600056'
 ktype='D'
 
 data = sz.data.get(code, ktype=ktype)
-fig, ax = sz.plot.init_fig_axes(2, data)
+fig, ax = sz.plot.init_fig_axes(3, data)
 
-ax1, ax2 = ax
+ax1, ax2, ax3 = ax
 
 sz.plot.kline(ax1, data=data)
 sz.plot.volume(ax2, data=data)
 
-#px = np.arange(data.index.size)
-#
-#ax1.plot(px, tl.MA(data.close.values, 5), 'r', label='5')
-#ax1.plot(px, tl.MA(data.close.values, 20), 'b', label='20')
-#ax1.plot(px, tl.MA(data.close.values, 30), 'm', label='30')
+macd = tl.MACD(data.close.values)
+macd = np.array(macd)
 
-#ax1.set_xticklabels([])
+idx = iter([1,2,3])
+clr = iter(['r','g','b'])
+for i in macd:
+    ax3.plot(np.arange(data.index.size), i, color=next(clr), label=next(idx))
+ax3.legend()
 
-#ax1.legend()
+px = np.arange(data.index.size)
+
+ax1.plot(px, tl.MA(data.close.values, 5), 'r', label='5')
+ax1.plot(px, tl.MA(data.close.values, 20), 'b', label='20')
+ax1.plot(px, tl.MA(data.close.values, 30), 'm', label='30')
+
+ax1.legend()
 
 plt.show()
