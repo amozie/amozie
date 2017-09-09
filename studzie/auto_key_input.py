@@ -27,15 +27,18 @@ def input_key(count, sleep=0.03):
 print('start after seconds......')
 time.sleep(2)
 
-texts = ['举重']
+texts = '力量 体质 灵巧 感知 学习 意志 魔力 魅力' #'战术 盾 射击 中装备 回避 治愈 心眼 冥想 旅行 咏唱'
+#'长剑 斧 格斗 镰 钝器 枪 杖 短剑 弓 弩 投掷 枪械'
+#'力量 体质 灵巧 感知 学习 意志 魔力 魅力 速度'
+texts = texts.split()
 
-counts = [60]
+counts = 40
 
 for i in range(len(texts)):
     wc.OpenClipboard()
     wc.EmptyClipboard()
     wc.SetClipboardText('技能 ' + texts[i])
     wc.CloseClipboard()
-    input_key(counts[i])
+    input_key(counts)
 
 print('end')

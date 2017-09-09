@@ -14,23 +14,21 @@ import tushare as ts
 import stockzie as sz
 
 
-def plotkv(code, ktype='D'):
+def plotkv(code=None, data=None, ktype='D'):
     sns.set()
+    
+    if data is None:
+        data = sz.data.get(code, ktype=ktype)
 
     fig = plt.figure(figsize=(14, 7))
     fig.suptitle('K-LINE-DIAGRAM')
 
-    ax1 = fig.add_axes([0.05, 0.26, 0.93, 0.73])
-    ax2 = fig.add_axes([0.05, 0.10, 0.93, 0.15])
-
-    data = sz.data.get(code, ktype=ktype)
+    fig, ax = sz.plot.init_fig_axes(2, data)
+    ax1, ax2 = ax
 
     sz.plot.kline(ax1, data=data)
     sz.plot.volume(ax2, data=data)
 
     ax1.set_xticklabels([])
-
     plt.show()
-
-    return data
 

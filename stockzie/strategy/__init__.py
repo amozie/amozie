@@ -1,0 +1,2 @@
+from stockzie.strategy.BaseStrategy import BaseStrategy
+from stockzie.strategy.Ma520Strategy import Ma520Strategy
