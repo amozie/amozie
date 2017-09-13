@@ -27,15 +27,16 @@ class StrategyError(Exception):
 class BaseStrategy():
     def __init__(self, data, cash=100000):
         self.__data = data
-        self._datas = sz.data.data_to_list(data)
+        self._datas = self.__data.swaplevel(axis=1)
+        self._data_list = sz.data.data_to_list(self.__data)
         self._trading = Trading(cash)
         self.output_dict = {}
         self.__plot_dicts = []
 
     ####################################
     '''
-    _datas              用于回测的所有数据（列表，避免使用）
-    _sofar_datas        从回测开始至当前（不包含）可用的data数据（列表，常用）
+    _data_list          用于回测的所有数据（列表，避免使用）
+    _sofar_data_list    从回测开始至当前（不包含）可用的data数据（列表，常用）
     _trading            交易对象
     _iter_i             当前遍历步数（从零开始）
     _iter_datas         当前时间点的data数据（列表）
@@ -98,7 +99,8 @@ class BaseStrategy():
         self.__last_day = date.day
         self._iter_i += 1
         self.__sofar_data = self.__data[:self._iter_i]
-        self._sofar_datas = sz.data.data_to_list(self.__sofar_data)
+        self._sofar_datas = self.__sofar_data.swaplevel(axis=1)
+        self._sofar_data_list = sz.data.data_to_list(self.__sofar_data)
         try:
             self.__iter_data = next(self.__iter)
             self._iter_datas = sz.data.data_to_list(self.__iter_data)
@@ -112,8 +114,9 @@ class BaseStrategy():
         self.__iter = self.__data.itertuples()
         self.__last_day = None
         self._iter_i = 0
-        self.__sofar_data = None
-        self._sofar_datas = []
+        self.__sofar_data = self.__data[:self._iter_i]
+        self._sofar_datas = self.__sofar_data.swaplevel(axis=1)
+        self._sofar_data_list = sz.data.data_to_list(self.__sofar_data)
         try:
             self.__iter_data = next(self.__iter)
             self._iter_datas = sz.data.data_to_list(self.__iter_data)
@@ -122,14 +125,15 @@ class BaseStrategy():
             return
         self._run()
 
-    def _add_plot_dict(self, fig_i, ax_i, y, label=None, options='', x=None):
+    def _add_plot_dict(self, y, ax_i, fig_i=None, label=None, options='', x=None, transpose=True):
         dt = {
             'fig_i': fig_i,
             'ax_i': ax_i,
             'y': y,
             'label': label,
             'x': x,
-            'options': options
+            'options': options,
+            'transpose': transpose
         }
         self.__plot_dicts.append(dt)
 
@@ -141,7 +145,15 @@ class BaseStrategy():
             label = dt['label']
             x = np.arange(len(dt['y'])) if dt['x'] is None else dt['x']
             options = dt['options']
-            axes[fig_i][ax_i].plot(x, y, options, label=label)
+            transpose = dt['transpose']
+            if fig_i is not None:
+                axes[fig_i][ax_i].plot(x, y, options, label=label)
+            else:
+                y_arr = np.array(y)
+                if transpose:
+                    y_arr = y_arr.T
+                for i, v in enumerate(y_arr):
+                    axes[i][ax_i].plot(x, v, options, label=label)
         for ax in axes:
             for i in ax:
                 i.legend()
@@ -154,7 +166,7 @@ class BaseStrategy():
             fig_i = dt['fig_i']
             ax_i = dt['ax_i']
             row_dict[fig_i] = np.max([row_dict.get(fig_i, row), ax_i + 1])
-        for i, data in enumerate(self._datas):
+        for i, data in enumerate(self._data_list):
             fig, ax = sz.plot.init_fig_axes(row_dict.get(i, row), data)
             fig.suptitle(data.code.dropna()[0])
             axes.append(ax)

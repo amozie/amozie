@@ -25,21 +25,29 @@ class Ma520Strategy(BaseStrategy):
         self.ma20 = []
 
     def _handle_trading(self):
-        if self._iter_i == 0:
-            self.ma5.append(None)
-            self.ma20.append(None)
-        else:
-            self.ma5.append(self._sofar_datas[0].tail(5).close.mean())
-            self.ma20.append(self._sofar_datas[0].tail(20).close.mean())
+        # if self._iter_i == 0:
+        #     self.ma5.append(None)
+        #     self.ma20.append(None)
+        # else:
+        #     self.ma5.append(self._sofar_data_list[0].tail(5).close.mean())
+        #     self.ma20.append(self._sofar_data_list[0].tail(20).close.mean())
+
+        self.ma5.append(self._sofar_datas.tail(5).close.mean())
+        self.ma20.append(self._sofar_datas.tail(20).close.mean())
 
     def _end_trading(self):
-        self._add_plot_dict(0, 0, self.ma5, 'ma5')
-        self._add_plot_dict(0, 0, self.ma20, 'ma20')
+        self._add_plot_dict(self.ma5, 0, label='ma5')
+        self._add_plot_dict(self.ma20, 0, label='ma20')
         # 测试MACD
-        macd = tl.MACD(self._datas[0].close.values)
+        macds = []
+
+
+        macd = tl.MACD(self._data_list[0].close.values)
         macd = np.array(macd)
-        for i, v in enumerate(macd):
-            self._add_plot_dict(0, 2, v, str(i))
+        # for i, v in enumerate(macd):
+        #     self._add_plot_dict(v, 2, 0, str(i))
+
+        self._add_plot_dict(macd, 2, 0, label=['a','b','c'])
 
 
 if __name__ == '__main__':
