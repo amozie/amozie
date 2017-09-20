@@ -28,7 +28,7 @@ class BaseStrategy():
     def __init__(self, data, cash=100000):
         self.__data = data
         self._datas = self.__data.swaplevel(axis=1)
-        self._data_list = sz.data.data_to_list(self.__data)
+        self._data_list = sz.data.datas_to_list(self.__data)
         self._trading = Trading(cash)
         self.output_dict = {}
         self.__plot_dicts = []
@@ -100,10 +100,10 @@ class BaseStrategy():
         self._iter_i += 1
         self.__sofar_data = self.__data[:self._iter_i]
         self._sofar_datas = self.__sofar_data.swaplevel(axis=1)
-        self._sofar_data_list = sz.data.data_to_list(self.__sofar_data)
+        self._sofar_data_list = sz.data.datas_to_list(self.__sofar_data)
         try:
             self.__iter_data = next(self.__iter)
-            self._iter_datas = sz.data.data_to_list(self.__iter_data)
+            self._iter_datas = sz.data.datas_to_list(self.__iter_data)
         except StopIteration:
             self._iter_datas = []
             self._end_trading()
@@ -116,10 +116,10 @@ class BaseStrategy():
         self._iter_i = 0
         self.__sofar_data = self.__data[:self._iter_i]
         self._sofar_datas = self.__sofar_data.swaplevel(axis=1)
-        self._sofar_data_list = sz.data.data_to_list(self.__sofar_data)
+        self._sofar_data_list = sz.data.datas_to_list(self.__sofar_data)
         try:
             self.__iter_data = next(self.__iter)
-            self._iter_datas = sz.data.data_to_list(self.__iter_data)
+            self._iter_datas = sz.data.datas_to_list(self.__iter_data)
         except StopIteration:
             self._iter_datas = []
             return

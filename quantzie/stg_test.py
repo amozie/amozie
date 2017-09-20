@@ -4,20 +4,29 @@ import six
 import timeit
 from quantdigger import *
 from quantdigger.digger.analyze import AnalyzeFrame
-from quantzie.strategy.common import TEST
+from quantzie.strategy.common import *
 
 SIZE = 10
 
 
 class Stg1(Strategy):
     def on_init(self, ctx):
-        ctx.test = TEST(ctx.close, 1, 'test', 'y', 2)
+        ctx.test = TEST(ctx.close, 'test')
 
     def on_bar(self, ctx):
-        if ctx.curbar == 1:
-            ctx.buy(ctx.close, 1)
-        else:
-            ctx.sell(ctx.open, 1)
+        pass
+
+    def on_exit(self, ctx):
+        pass
+
+
+class Stg2(Strategy):
+    def on_init(self, ctx):
+        ctx.macd = MACD(ctx.close, 5)
+
+    def on_bar(self, ctx):
+        # ctx.switch_to_pcontract('600056.SH-1.DAY')
+        if ctx.pos() < 4:
             ctx.buy(ctx.close, 1)
 
     def on_exit(self, ctx):
@@ -26,12 +35,13 @@ class Stg1(Strategy):
 
 if __name__ == '__main__':
     start = timeit.default_timer()
-    #ConfigUtil.set(source='tushare')
-    ConfigUtil.set(source='cached-tushare',
-                   cache_path='E:/_cache_tushare')
-    set_symbols(['600096.SH-1.Day'], '2015-01-04', '2016-01-08')
-    # set_symbols(['BB.SHFE-1.Minute'])
-    profile = add_strategy([Stg1('S1')], {'capital': 500000.0})
+    # ConfigUtil.set(source='tushare')
+    # ConfigUtil.set(source='cached-tushare',
+    #                cache_path='E:/_cache_tushare')
+    # set_symbols(['600056.SH-1.Day'], '2016-01-04', '2016-01-08')
+    ConfigUtil.set(source='csv', data_path='E:/_cache_tushare')
+    set_symbols(['600096.SH-1.Day'], '2016-01-04', '2016-01-08')
+    profile = add_strategy([Stg2('Stg')], {'capital': 100000.0})
     run()
     stop = timeit.default_timer()
     six.print_('using time: %d seconds' % (stop - start))
@@ -40,6 +50,10 @@ if __name__ == '__main__':
     s = 0
     curve0 = finance.create_equity_curve(profile.all_holdings(0))
     # AnalyzeFrame(profile)
-    plotting.plot_strategy(profile.data(0), profile.technicals(0),
-                           profile.deals(0), curve0.equity.values,
+    plotting.plot_strategy(profile.data(0),
+                           {
+                               # 1:[profile.technicals(0)],
+                               3:[profile.technicals(0)]
+                           },
+                           {}, curve0.equity.values,
                            profile.marks(0))

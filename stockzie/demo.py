@@ -20,9 +20,7 @@ def plotkv(code=None, data=None, ktype='D'):
     if data is None:
         data = sz.data.get(code, ktype=ktype)
 
-    fig = plt.figure(figsize=(14, 7))
-    fig.suptitle('K-LINE-DIAGRAM')
-
+    data = data[0]
     fig, ax = sz.plot.init_fig_axes(2, data)
     ax1, ax2 = ax
 

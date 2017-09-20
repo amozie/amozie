@@ -50,5 +50,10 @@ def test3():
     strategy.run()
     strategy.plot_demo()
 
+def test4():
+    stocks = sz.Stocks(['600056', '300383'])
+    stocks.plot_kv()
+    plt.show()
+
 if __name__ == '__main__':
-    test3()
+    test4()
