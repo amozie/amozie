@@ -53,21 +53,21 @@ def init_xtick_date(ax, data, num=DATE_NUM, label=True):
         ax.set_xticklabels([])
 
 
-def init_fig_axes(row=1, data=None, title=None, top=0.01, down=0.10, left=0.05, right=0.02,
+def init_fig_axes(rows=1, data=None, title=None, top=0.01, down=0.10, left=0.05, right=0.02,
                   space=0.015, sub_height=0.15, num=DATE_NUM):
-    if row < 1 or row > 4:
-        raise PlotException('row must be >= 1 and <= 4')
+    if rows < 1 or rows > 4:
+        raise PlotException('rows must be >= 1 and <= 4')
     sns.set()
     fig = plt.figure(figsize=FIG_SIZE)
     if title is not None:
         fig.suptitle(title)
     axes = []
     sub_all_height = sub_height + space
-    main_down = down + sub_all_height * (row - 1)
+    main_down = down + sub_all_height * (rows - 1)
     main_height = 1 - main_down - top
     width = 1 - left - right
 
-    for i in range(row):
+    for i in range(rows):
         axes.append(fig.add_axes([left,
                                   main_down - sub_all_height * i,
                                   width,

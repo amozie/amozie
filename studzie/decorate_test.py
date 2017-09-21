@@ -28,5 +28,19 @@ class Parent():
 class Son(Parent):
     def run(self, text):
         print('son run: {}'.format(text))
-        
-        
+
+def dec(fun):
+    def decorated(*args, **kwargs):
+        print('start')
+        res = fun(*args, **kwargs)
+        print('end')
+        return res
+    return decorated
+
+@dec
+def foo(a, b):
+    return a*b
+
+if __name__ == '__main__':
+    res = foo(3,2)
+    print(res)

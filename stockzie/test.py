@@ -6,6 +6,8 @@ import tushare as ts
 import talib as tl
 
 import stockzie as sz
+from stockzie.technique.common import *
+
 
 def test1():
     if 'data' not in locals().keys():
@@ -52,6 +54,7 @@ def test3():
 
 def test4():
     stocks = sz.Stocks(['600056', '300383'])
+    stocks.add_technique(MA520LineTechnique)
     stocks.plot_kv()
     plt.show()
 

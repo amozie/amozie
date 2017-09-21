@@ -81,6 +81,6 @@ def add_datenum(data):
 
 
 def to_list(params):
-    if isinstance(params, list):
+    if isinstance(params, list) or isinstance(params, tuple):
         return params
     return [params]
