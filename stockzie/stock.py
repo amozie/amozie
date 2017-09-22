@@ -2,7 +2,7 @@ import stockzie as sz
 import numpy as np
 
 
-class Stocks():
+class Stocks:
     def __init__(self, codes, start=None, end=None, ktype='D', source='tushare') -> None:
         self.codes = sz.data.to_list(codes)
         self.datas = sz.data.get(self.codes, start, end, ktype)
@@ -25,9 +25,8 @@ class Stocks():
         for stock in stocks:
             fig, ax = sz.plot.init_fig_axes(max_row + 1, stock.data)
             fig.suptitle(stock.code)
-            ax1, ax2 = ax
-            sz.plot.kline(ax1, data=stock.data)
-            sz.plot.volume(ax2, data=stock.data)
+            sz.plot.kline(ax[0], data=stock.data)
+            sz.plot.volume(ax[1], data=stock.data)
             stock.plot_technique(ax)
             for i in ax:
                 i.legend()
@@ -41,7 +40,7 @@ class Stocks():
             stock.add_technique(tech.run(stock.data))
 
 
-class Stock():
+class Stock:
     def __init__(self, code, data) -> None:
         self.code = code
         self.data = data

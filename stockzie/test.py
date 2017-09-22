@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 import tushare as ts
+import statsmodels.api as sm
 
 import talib as tl
 
@@ -13,6 +14,7 @@ def test1():
     if 'data' not in locals().keys():
         data = None
     data = sz.demo.plotkv('600056', data)
+
 
 def test2():
     code='600056'
@@ -46,17 +48,23 @@ def test2():
     
     plt.show()
 
+
 def test3():
     data = sz.data.get('600056')
     strategy = sz.strategy.Ma520Strategy(data.tail(200))
     strategy.run()
     strategy.plot_demo()
 
+
 def test4():
     stocks = sz.Stocks(['600056', '300383'])
     stocks.add_technique(MA520LineTechnique)
     stocks.plot_kv()
     plt.show()
+
+
+def test5():
+    pass
 
 if __name__ == '__main__':
     test4()

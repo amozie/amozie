@@ -1,6 +1,7 @@
 from stockzie.technique import Technique
 import talib
 import numpy as np
+import statsmodels.api as sm
 
 
 class TestTechnique(Technique):
@@ -22,14 +23,14 @@ class MA520Technique(Technique):
 class MA520LineTechnique(Technique):
     def run(self, data) -> list:
         index = np.arange(data.index.size)
-        ma5 = talib.MA(data.close.values, 5)
-        ma20 = talib.MA(data.close.values, 20)
+        ma_fast = talib.MA(data.close.values, 12)
+        ma_slow = talib.MA(data.close.values, 18)
         close = data.close.values
         x_up = []
         y_up = []
         x_down = []
         y_down = []
-        cross = ma5 - ma20
+        cross = ma_fast - ma_slow
         flag = None
         for i in index:
             if i == 0:
@@ -38,7 +39,7 @@ class MA520LineTechnique(Technique):
                 else:
                     flag = False
             else:
-                if not flag and (i == len(index-1) or cross[i] > 0):
+                if not flag and (i == len(index)-1 or cross[i] > 0):
                     x_up.append(i)
                     y_up.append(close[i])
                     x_down.append(i)
@@ -56,6 +57,18 @@ class MA520LineTechnique(Technique):
                     flag = False
         super()._add_technique('up', y_up, x_axis=x_up, width=3)
         super()._add_technique('down', y_down, x_axis=x_down, width=3)
-        super()._add_technique('ma5', ma5, width=1, alpha=0.5)
-        super()._add_technique('ma20', ma20, width=1, alpha=0.5)
+        super()._add_technique('ma5', ma_fast, 2, width=1, alpha=0.5)
+        super()._add_technique('ma20', ma_slow, 2, width=1, alpha=0.5)
+        return super().run(data)
+
+
+class LineTechnique(Technique):
+    def _evaluate(self):
+        pass
+
+    def run(self, data) -> list:
+        index = np.arange(data.index.size)
+        close = data.close.values
+        start = 0
+
         return super().run(data)
