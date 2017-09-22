@@ -26,8 +26,7 @@ class Stg2(Strategy):
 
     def on_bar(self, ctx):
         # ctx.switch_to_pcontract('600056.SH-1.DAY')
-        if ctx.pos() < 4:
-            ctx.buy(ctx.close, 1)
+        ctx.buy(ctx.close, 1)
 
     def on_exit(self, ctx):
         pass
@@ -40,7 +39,7 @@ if __name__ == '__main__':
     #                cache_path='E:/_cache_tushare')
     # set_symbols(['600056.SH-1.Day'], '2016-01-04', '2016-01-08')
     ConfigUtil.set(source='csv', data_path='E:/_cache_tushare')
-    set_symbols(['600096.SH-1.Day'], '2016-01-04', '2016-01-08')
+    set_symbols(['600096.SH-1.Day'], '2015-01-04', '2016-01-08')
     profile = add_strategy([Stg2('Stg')], {'capital': 100000.0})
     run()
     stop = timeit.default_timer()
