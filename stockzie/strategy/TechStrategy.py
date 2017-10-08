@@ -30,7 +30,6 @@ class TechStrategy():
         self.__last_day = None
         self.__techniques = {}
         self.__trading_simple = {}
-        self.__total_simple = []
 
         self.iter = None
         self.data_hist = None
@@ -60,6 +59,17 @@ class TechStrategy():
 
     ####################################
 
+    def _add_technique(self, name, value, row=0, style='', width=None, alpha=None, x_axis=None):
+        self.__techniques[name] = {
+                'name': name,
+                'value': value,
+                'row': row,
+                'style': style,
+                'width': width,
+                'alpha': alpha,
+                'x_axis': x_axis
+            }
+
     def _add_technique_iter(self, name, value_iter, row=0, style='', width=None, alpha=None, x_axis=None):
         technique_dict = self.__techniques.get(name)
         if technique_dict is None:
@@ -77,6 +87,7 @@ class TechStrategy():
 
     def run(self, data):
         self.__techniques.clear()
+        self.__trading_simple.clear()
         self._init_trading(data)
         self.__last_day = None
         for i in range(data.shape[0]):
@@ -138,16 +149,37 @@ class TechStrategy():
 
     def __calc_trading_simple(self, data):
         total = 1
-        is_position = False
         buy_date = None
+        total_trading = []
         for i in range(data.shape[0]):
             trade = self.__trading_simple.get(i)
             if trade is not None:
+                datestr = data.iloc[i].date.split()[0]
+                try:
+                    date = datetime.strptime(datestr, '%Y-%m-%d')
+                except ValueError:
+                    raise StrategyError('cannot parse datestr to datetime')
                 for j in trade:
                     if j['buy']:
-                        pass
+                        if buy_date is None:
+                            buy_date = date
+                            buy_price = j['price']
+                            cur_price = data.iloc[i].close
+                            total = total * cur_price / buy_price
                     else:
-                        pass
+                        if buy_date is not None and date > buy_date:
+                            buy_date = None
+                            sell_price = j['price']
+                            last_price = data.iloc[i-1].close
+                            total = total * sell_price / last_price
+            else:
+                if buy_date is not None:
+                    last_price = data.iloc[i - 1].close
+                    cur_price = data.iloc[i].close
+                    total = total * cur_price / last_price
+
+            total_trading.append(total)
+        self._add_technique('Asset', total_trading, 2)
 
 
 
