@@ -39,6 +39,11 @@ class Stocks:
         for stock in self.stocks:
             stock.add_technique(tech.run(stock.data))
 
+    def add_tech_strategy(self, TechStrategy):
+        strategy = TechStrategy()
+        for stock in self.stocks:
+            stock.add_technique(strategy.run(stock.data))
+
 
 class Stock:
     def __init__(self, code, data) -> None:
@@ -47,7 +52,10 @@ class Stock:
         self.techniques = []
 
     def add_technique(self, techniques):
-        self.techniques.extend(techniques)
+        if isinstance(techniques, list):
+            self.techniques.extend(techniques)
+        elif isinstance(techniques, dict):
+            self.techniques.extend(techniques.values())
 
     def plot_technique(self, ax):
         x_axis_all = np.arange(self.data.index.size)

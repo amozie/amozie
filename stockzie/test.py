@@ -7,6 +7,7 @@ import statsmodels.api as sm
 import talib as tl
 
 import stockzie as sz
+from stockzie.strategy.tech_common import *
 from stockzie.technique.common import *
 
 
@@ -58,13 +59,31 @@ def test3():
 
 def test4():
     stocks = sz.Stocks(['600056', '300383'])
-    stocks.add_technique(MA520LineTechnique)
+    stocks.add_technique(MA520Technique)
     stocks.plot_kv()
     plt.show()
 
 
 def test5():
-    pass
+    stocks = sz.Stocks(['000070', '002380'], start='', end='', ktype='60')
+    stocks.add_technique(WaveletTechnique)
+    stocks.plot_kv()
+    plt.show()
+
+
+def test6():
+    stocks = sz.Stocks(['000070', '002380'], start='', end='', ktype='D')
+    stocks.add_technique(WaveletHistoryTechnique)
+    stocks.plot_kv()
+    plt.show()
+
+def test7():
+    stocks = sz.Stocks(['600056', '300383'])
+    stocks.add_technique(MA520Technique)
+    stocks.add_tech_strategy(MA520TechStrategy)
+    stocks.plot_kv()
+    plt.show()
+
 
 if __name__ == '__main__':
-    test4()
+    test7()

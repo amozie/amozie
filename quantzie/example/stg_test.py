@@ -5,6 +5,7 @@ import timeit
 from quantdigger import *
 from quantdigger.digger.analyze import AnalyzeFrame
 from quantzie.strategy.common import *
+import matplotlib.pyplot as plt
 
 SIZE = 10
 
@@ -26,7 +27,10 @@ class Stg2(Strategy):
 
     def on_bar(self, ctx):
         # ctx.switch_to_pcontract('600056.SH-1.DAY')
-        ctx.buy(ctx.close, 1)
+        if 1==ctx.curbar:
+            ctx.buy(ctx.close, 5000)
+        elif 20==ctx.curbar:
+            ctx.sell(ctx.close, ctx.pos())
 
     def on_exit(self, ctx):
         pass
@@ -52,7 +56,17 @@ if __name__ == '__main__':
     plotting.plot_strategy(profile.data(0),
                            {
                                # 1:[profile.technicals(0)],
-                               3:[profile.technicals(0)]
+                               3: [profile.technicals(0)]
                            },
                            {}, curve0.equity.values,
                            profile.marks(0))
+
+    plotting.plot_strategy(profile.data(0),
+                           {
+                               # 1:[profile.technicals(0)],
+                               3: [profile.technicals(0)]
+                           },
+                           {}, curve0.equity.values,
+                           profile.marks(0))
+
+    plt.show()
