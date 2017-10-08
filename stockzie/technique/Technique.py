@@ -17,7 +17,7 @@ class Technique():
     def clear(self):
         self.techniques = []
 
-    def add_technique(self, name, value, row=0, style='', width=None, alpha=None, x_axis=None):
+    def _add_technique(self, name, value, row=0, style='', width=None, alpha=None, x_axis=None):
         self.techniques.append(
             {
                 'name': name,

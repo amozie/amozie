@@ -8,8 +8,8 @@ import statsmodels.api as sm
 class TestTechnique(Technique):
     def run(self, data) -> list:
         self.clear()
-        self.add_technique('close', data.close, 0, 'r--', 1, 0.8)
-        self.add_technique('open', data.open, 0, 'b--', 1, 0.8)
+        self._add_technique('close', data.close, 0, 'r--', 1, 0.8)
+        self._add_technique('open', data.open, 0, 'b--', 1, 0.8)
         return self.get()
 
 
@@ -28,10 +28,10 @@ class MA520Technique(Technique):
                 signal.append(0)
         trade, asset = cal_trade_asset(data, signal, True, 1)
 
-        self.add_technique('ma5', ma5)
-        self.add_technique('ma20', ma20)
-        self.add_technique('trading', trade, 2, '*')
-        self.add_technique('asset', asset, 3)
+        self._add_technique('ma5', ma5)
+        self._add_technique('ma20', ma20)
+        self._add_technique('trading', trade, 2, '*')
+        self._add_technique('asset', asset, 3)
         return self.get()
 
 
@@ -71,10 +71,10 @@ class MA520LineTechnique(Technique):
                     x_up.append(np.nan)
                     y_up.append(np.nan)
                     flag = False
-        self.add_technique('up', y_up, x_axis=x_up, width=3)
-        self.add_technique('down', y_down, x_axis=x_down, width=3)
-        self.add_technique('ma5', ma_fast, 2, width=1, alpha=0.5)
-        self.add_technique('ma20', ma_slow, 2, width=1, alpha=0.5)
+        self._add_technique('up', y_up, x_axis=x_up, width=3)
+        self._add_technique('down', y_down, x_axis=x_down, width=3)
+        self._add_technique('ma5', ma_fast, 2, width=1, alpha=0.5)
+        self._add_technique('ma20', ma_slow, 2, width=1, alpha=0.5)
         return self.get()
 
 
@@ -91,10 +91,10 @@ class ATRTechnique(Technique):
         close_down = close + atr21
         close_up = np.insert(close_up[:-1], 0, np.nan)
         close_down = np.insert(close_down[:-1], 0, np.nan)
-        self.add_technique('ATR14', atr14, 2)
-        self.add_technique('ATR', atr42, 2)
-        self.add_technique('UP', close_up, style='b--', width=1, alpha=0.5)
-        self.add_technique('DOWN', close_down, style='b--', width=1, alpha=0.5)
+        self._add_technique('ATR14', atr14, 2)
+        self._add_technique('ATR', atr42, 2)
+        self._add_technique('UP', close_up, style='b--', width=1, alpha=0.5)
+        self._add_technique('DOWN', close_down, style='b--', width=1, alpha=0.5)
         return self.get()
 
 
@@ -115,7 +115,7 @@ class WaveletTechnique(Technique):
         for i, wl in enumerate(wl_list):
             if i == 0:
                 continue
-            self.add_technique('WL{0}'.format(i + 1), wl, x_axis=np.arange(wl.size))
+            self._add_technique('WL{0}'.format(i + 1), wl, x_axis=np.arange(wl.size))
         node_list = ['daa', 'ada', 'aad']
         wld_list = []
         for i in range(level):
@@ -125,7 +125,7 @@ class WaveletTechnique(Technique):
             wld = new_wp.reconstruct()
             wld_list.append(wld)
         for i, wl in enumerate(wld_list):
-            self.add_technique('D{0}'.format(i + 1), wl, 2, x_axis=np.arange(wl.size))
+            self._add_technique('D{0}'.format(i + 1), wl, 2, x_axis=np.arange(wl.size))
         return self.get()
 
 
@@ -144,7 +144,7 @@ class WaveletHistoryTechnique(Technique):
             new_wp[node] = wp[node]
             wl = new_wp.reconstruct()
             wla.append(wl[i])
-        self.add_technique('WLA', wla, x_axis=np.arange(len(wla)))
+        self._add_technique('WLA', wla, x_axis=np.arange(len(wla)))
         return self.get()
 
 

@@ -28,9 +28,13 @@ class StrategyError(Exception):
 class TechStrategy():
     def __init__(self):
         self.__last_day = None
-        self.techniques = {}
+        self.__techniques = {}
+        self.__trading_simple = {}
+        self.__total_simple = []
+
         self.iter = None
         self.data_hist = None
+
 
     ####################################
 
@@ -56,10 +60,10 @@ class TechStrategy():
 
     ####################################
 
-    def add_technique_iter(self, name, value_iter, row=0, style='', width=None, alpha=None, x_axis=None):
-        technique_dict = self.techniques.get(name, None)
+    def _add_technique_iter(self, name, value_iter, row=0, style='', width=None, alpha=None, x_axis=None):
+        technique_dict = self.__techniques.get(name)
         if technique_dict is None:
-            self.techniques[name] = {
+            self.__techniques[name] = {
                 'name': name,
                 'value': [value_iter],
                 'row': row,
@@ -72,8 +76,7 @@ class TechStrategy():
             technique_dict['value'].append(value_iter)
 
     def run(self, data):
-        global curbar
-        self.techniques.clear()
+        self.__techniques.clear()
         self._init_trading(data)
         self.__last_day = None
         for i in range(data.shape[0]):
@@ -106,7 +109,47 @@ class TechStrategy():
 
         self._end_trading(data)
 
-        return self.techniques
+        self.__calc_trading_simple(data)
+
+        return self.__techniques
+
+    def __trade_simple(self, price, buy):
+        trade = self.__trading_simple.get(self.iter)
+        if trade is None:
+            self.__trading_simple[self.iter] = [
+                {
+                    'buy': buy,
+                    'price': price
+                }
+            ]
+        else:
+            trade.append(
+                {
+                    'buy': buy,
+                    'price': price
+                }
+            )
+
+    def buy_simple(self, price):
+        self.__trade_simple(price, True)
+
+    def sell_simple(self, price):
+        self.__trade_simple(price, False)
+
+    def __calc_trading_simple(self, data):
+        total = 1
+        is_position = False
+        buy_date = None
+        for i in range(data.shape[0]):
+            trade = self.__trading_simple.get(i)
+            if trade is not None:
+                for j in trade:
+                    if j['buy']:
+                        pass
+                    else:
+                        pass
+
+
 
 
 class Trading():
@@ -117,7 +160,7 @@ class Trading():
         self.__commision = 0.0005
         self.__stamp_tax = 0.001
 
-        self.__total = [1]
+        self.__total = 1
         self.__is_position = False
 
     def buy_all(self, price):

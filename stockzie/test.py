@@ -79,8 +79,8 @@ def test6():
 
 def test7():
     stocks = sz.Stocks(['600056', '300383'])
-    stocks.add_technique(MA520Technique)
-    stocks.add_tech_strategy(MA520TechStrategy)
+    # stocks.add_technique(MA520Technique)
+    stocks.add_tech_strategy(TestTechStrategy)
     stocks.plot_kv()
     plt.show()
 
