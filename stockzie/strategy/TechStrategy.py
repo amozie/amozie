@@ -147,12 +147,21 @@ class TechStrategy():
     def sell_simple(self, price):
         self.__trade_simple(price, False)
 
-    def __calc_trading_simple(self, data):
+    def __calc_trading_simple(self, data, stop=0.1):
         total = 1
         buy_date = None
         total_trading = []
+        stop_price = None
         for i in range(data.shape[0]):
+            high = data.high.iloc[i]
+            low = data.low.iloc[i]
             trade = self.__trading_simple.get(i)
+            if stop_price is not None:
+                if low <= stop_price:
+                    buy_date = None
+                    last_price = data.iloc[i - 1].close
+                    total = total * stop_price / last_price
+                    stop_price = None
             if trade is not None:
                 datestr = data.iloc[i].date.split()[0]
                 try:
@@ -162,16 +171,22 @@ class TechStrategy():
                 for j in trade:
                     if j['buy']:
                         if buy_date is None:
-                            buy_date = date
                             buy_price = j['price']
-                            cur_price = data.iloc[i].close
-                            total = total * cur_price / buy_price
+                            if low <= buy_price <= high:
+                                buy_date = date
+                                cur_price = data.iloc[i].close
+                                total = total * cur_price / buy_price
+                                if stop > 0:
+                                    stop_price = high * (1 - stop)
                     else:
                         if buy_date is not None and date > buy_date:
-                            buy_date = None
                             sell_price = j['price']
-                            last_price = data.iloc[i-1].close
-                            total = total * sell_price / last_price
+                            if low <= sell_price <= high:
+                                buy_date = None
+                                last_price = data.iloc[i-1].close
+                                total = total * sell_price / last_price
+                                if stop > 0:
+                                    stop_price = None
             else:
                 if buy_date is not None:
                     last_price = data.iloc[i - 1].close

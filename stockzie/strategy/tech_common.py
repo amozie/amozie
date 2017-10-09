@@ -8,24 +8,58 @@ class TestTechStrategy(TechStrategy):
 
 
 class MA520TechStrategy(TechStrategy):
+    def __init__(self):
+        super().__init__()
+        self.ma5_list = []
+        self.ma10_list = []
+        self.ma20_list = []
+
+    def _init_trading(self, data):
+        super()._init_trading(data)
+        self.ma5_list = []
+        self.ma10_list = []
+        self.ma20_list = []
+
     def _handle_trading(self, data):
-        ma5 = np.average(self.data_hist.close.tail(5))
-        ma10 = np.average(self.data_hist.close.tail(10))
-        ma20 = np.average(self.data_hist.close.tail(20))
-        if self.iter == 0:
+        con5 = 5
+        con10 = 10
+        con20 = 20
+        ma5 = np.average(self.data_hist.close[-con5:])
+        ma10 = np.average(self.data_hist.close[-con10:])
+        ma20 = np.average(self.data_hist.close[-con20:])
+        self.ma5_list.append(ma5)
+        self.ma10_list.append(ma10)
+        self.ma20_list.append(ma20)
+        try:
+            ma5_price = self.data_hist.close.iloc[-con5-1]
+            ma10_price = self.data_hist.close.iloc[-con10-1]
+            ma20_price = self.data_hist.close.iloc[-con20-1]
+            ma5_hist = self.ma5_list[-con5-1]
+            ma10_hist = self.ma10_list[-con10-1]
+            ma20_hist = self.ma20_list[-con20-1]
+        except IndexError:
+            ma5_price = np.nan
+            ma10_price = np.nan
+            ma20_price = np.nan
+            ma5_hist = np.nan
+            ma10_hist = np.nan
+            ma20_hist = np.nan
+        if self.iter < con20 + 1:
             ma520 = 0
-        elif self.ma5 < self.ma10 and ma5 > ma10 and self.ma5 < ma5 and self.ma20 < ma20:
-            ma520 = 1
-            self.buy_simple(data.iloc[self.iter].close)
-        elif self.ma5 > self.ma10 and ma5 < ma10:
-            ma520 = -1
-            self.sell_simple(data.iloc[self.iter].close)
         else:
-            ma520 = 0
-        self._add_technique_iter('ma5', ma5)
-        self._add_technique_iter('ma10', ma10)
-        self._add_technique_iter('ma20', ma20)
+            if ma20 > self.ma20:
+                ma520 = 1
+            else:
+                ma520 = 0
+        self._add_technique_iter('ma', ma10)
+        self._add_technique_iter('ma_p', ma10_price)
+        self._add_technique_iter('ma_p_ma', ma10_hist)
         self._add_technique_iter('ma520', ma520, 3)
         self.ma5 = ma5
         self.ma10 = ma10
         self.ma20 = ma20
+
+    def _after_trading(self, data):
+        test = data.close.values
+        test = np.insert(test, 0 , [np.nan]*20)
+        # self._add_technique('test', test, x_axis=np.arange(test.size))
