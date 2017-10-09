@@ -33,6 +33,7 @@ class TechStrategy():
 
         self.iter = None
         self.data_hist = None
+        self.is_position = False
 
 
     ####################################

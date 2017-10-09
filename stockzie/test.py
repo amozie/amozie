@@ -65,17 +65,18 @@ def test4():
 
 
 def test5():
-    stocks = sz.Stocks(['000070', '002380'], start='', end='', ktype='60')
+    stocks = sz.Stocks(['000070', '002380', '600056'], start='', end='', ktype='D')
     stocks.add_technique(WaveletTechnique)
     stocks.plot_kv()
     plt.show()
 
 
 def test6():
-    stocks = sz.Stocks(['000070', '002380'], start='', end='', ktype='D')
+    stocks = sz.Stocks(['000070', '002380', '600056'], start='', end='', ktype='D')
     stocks.add_technique(WaveletHistoryTechnique)
     stocks.plot_kv()
     plt.show()
+
 
 def test7():
     stocks = sz.Stocks(['000070', '300383', '600056'])

@@ -101,9 +101,9 @@ class ATRTechnique(Technique):
 class WaveletTechnique(Technique):
     def run(self, data) -> list:
         self.clear()
-        close = data.close.values
-        wavelet = 'db1'
-        level = 3
+        close = data.close.values[:-7]
+        wavelet = 'db3'
+        level = 4
         wp = pywt.WaveletPacket(close, wavelet, maxlevel=level)
         wl_list = []
         for i in range(level):
@@ -113,19 +113,19 @@ class WaveletTechnique(Technique):
             wl = new_wp.reconstruct()
             wl_list.append(wl)
         for i, wl in enumerate(wl_list):
-            if i == 0:
+            if i < level-1:
                 continue
             self._add_technique('WL{0}'.format(i + 1), wl, x_axis=np.arange(wl.size))
-        node_list = ['daa', 'ada', 'aad']
-        wld_list = []
-        for i in range(level):
-            new_wp = pywt.WaveletPacket(None, wavelet, maxlevel=level)
-            node = node_list[i]
-            new_wp[node] = wp[node]
-            wld = new_wp.reconstruct()
-            wld_list.append(wld)
-        for i, wl in enumerate(wld_list):
-            self._add_technique('D{0}'.format(i + 1), wl, 2, x_axis=np.arange(wl.size))
+        # node_list = ['daa', 'ada', 'aad']
+        # wld_list = []
+        # for i in range(level):
+        #     new_wp = pywt.WaveletPacket(None, wavelet, maxlevel=level)
+        #     node = node_list[i]
+        #     new_wp[node] = wp[node]
+        #     wld = new_wp.reconstruct()
+        #     wld_list.append(wld)
+        # for i, wl in enumerate(wld_list):
+        #     self._add_technique('D{0}'.format(i + 1), wl, 2, x_axis=np.arange(wl.size))
         return self.get()
 
 
@@ -133,14 +133,14 @@ class WaveletHistoryTechnique(Technique):
     def run(self, data) -> list:
         self.clear()
         close_all = data.close.values
-        wavelet = 'db1'
-        level = 3
+        wavelet = 'db2'
+        level = 4
         wla = [np.nan]
         for i in range(close_all.size):
             close = close_all[:i+1]
             wp = pywt.WaveletPacket(close, wavelet, maxlevel=level)
             new_wp = pywt.WaveletPacket(None, wavelet, maxlevel=level)
-            node = 'aaa'
+            node = 'a'*level
             new_wp[node] = wp[node]
             wl = new_wp.reconstruct()
             wla.append(wl[i])

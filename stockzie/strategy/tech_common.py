@@ -30,30 +30,37 @@ class MA520TechStrategy(TechStrategy):
         self.ma5_list.append(ma5)
         self.ma10_list.append(ma10)
         self.ma20_list.append(ma20)
+        ma5_cross = np.average(self.data_hist.close.iloc[-con5:-1])
+        ma10_cross = np.average(self.data_hist.close.iloc[-con10:-1])
+        ma20_cross = np.average(self.data_hist.close.iloc[-con20:-1])
         try:
-            ma5_price = self.data_hist.close.iloc[-con5-1]
-            ma10_price = self.data_hist.close.iloc[-con10-1]
-            ma20_price = self.data_hist.close.iloc[-con20-1]
+            last5_price = self.data_hist.close.iloc[-con5-1]
+            last10_price = self.data_hist.close.iloc[-con10-1]
+            last20_price = self.data_hist.close.iloc[-con20-1]
             ma5_hist = self.ma5_list[-con5-1]
             ma10_hist = self.ma10_list[-con10-1]
             ma20_hist = self.ma20_list[-con20-1]
         except IndexError:
-            ma5_price = np.nan
-            ma10_price = np.nan
-            ma20_price = np.nan
+            last5_price = np.nan
+            last10_price = np.nan
+            last20_price = np.nan
             ma5_hist = np.nan
             ma10_hist = np.nan
             ma20_hist = np.nan
         if self.iter < con20 + 1:
             ma520 = 0
         else:
-            if ma20 > self.ma20:
+            if ma5_cross > self.ma5 and ma10_cross > self.ma10 and ma20_cross > self.ma20:
                 ma520 = 1
+                self.buy_simple(ma20_cross)
+            elif ma20_cross < self.ma20:
+                ma520 = -1
+                self.sell_simple(ma5_cross)
             else:
                 ma520 = 0
-        self._add_technique_iter('ma', ma10)
-        self._add_technique_iter('ma_p', ma10_price)
-        self._add_technique_iter('ma_p_ma', ma10_hist)
+        self._add_technique_iter('ma1', ma5)
+        self._add_technique_iter('ma2', ma10)
+        self._add_technique_iter('ma3', ma20)
         self._add_technique_iter('ma520', ma520, 3)
         self.ma5 = ma5
         self.ma10 = ma10
