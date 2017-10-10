@@ -50,3 +50,35 @@ class MACD(TechnicalBase):
         self.plot_line(self.values['s2'], self.style[1], lw=self.lw)
         self.plot_line(self.values['s3'], self.style[2], lw=self.lw)
         self.plot_line(self.values['s4'], self.style[3], lw=self.lw)
+
+@register_tech('MAZ')
+class MAZ(TechnicalBase):
+    """ 移动平均线指标。 """
+    @tech_init
+    def __init__(self, data, n, name='MA',
+                 style='y', lw=1):
+        """ data (NumberSeries/np.ndarray/list) """
+        super(MAZ, self).__init__(name)
+        # 必须的函数参数
+        self._args = [ndarray(data), n]
+
+    def _rolling_algo(self, data, n, i):
+        """ 逐步运行函数。"""
+        ## @todo 因为用了向量化方法，速度降低
+        return (talib.SMA(data, n)[i], )
+
+    def _vector_algo(self, data, n):
+        """向量化运行, 结果必须赋值给self.values。
+
+        Args:
+            data (np.ndarray): 数据
+            n (int): 时间窗口大小
+        """
+        ## @NOTE self.values为保留字段！
+        # 绘图和指标基类都会用到self.values
+        self.values = talib.SMA(data, n)
+
+    def plot(self, widget):
+        """ 绘图，参数可由UI调整。 """
+        self.widget = widget
+        self.plot_line(self.values, self.style, lw=self.lw)

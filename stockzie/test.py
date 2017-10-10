@@ -65,14 +65,14 @@ def test4():
 
 
 def test5():
-    stocks = sz.Stocks(['000070', '002380', '600056'], start='', end='', ktype='D')
+    stocks = sz.Stocks(['000070', '002380', '600056', '600740'], start='', end='', ktype='D')
     stocks.add_technique(WaveletTechnique)
     stocks.plot_kv()
     plt.show()
 
 
 def test6():
-    stocks = sz.Stocks(['000070', '002380', '600056'], start='', end='', ktype='D')
+    stocks = sz.Stocks(['000070', '002380', '600056', '600740'], start='', end='', ktype='D')
     stocks.add_technique(WaveletHistoryTechnique)
     stocks.plot_kv()
     plt.show()
@@ -82,6 +82,14 @@ def test7():
     stocks = sz.Stocks(['000070', '300383', '600056'])
     # stocks.add_technique(MA520Technique)
     stocks.add_tech_strategy(MA520TechStrategy)
+    stocks.plot_kv()
+    plt.show()
+
+
+def test8():
+    stocks = sz.Stocks(['000070', '300383', '600056'])
+    # stocks.add_technique(MA520Technique)
+    stocks.add_tech_strategy(WaveHisTechStrategy)
     stocks.plot_kv()
     plt.show()
 

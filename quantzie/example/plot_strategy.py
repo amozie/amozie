@@ -14,6 +14,7 @@ from quantdigger import *
 import timeit
 from quantdigger.digger import finance, plotting
 from quantdigger.digger.analyze import AnalyzeFrame
+import matplotlib.pyplot as plt
 
 boll = {
         'upper': [],
@@ -117,3 +118,4 @@ if __name__ == '__main__':
     ## 打印统计信息
     six.print_(finance.summary_stats(curve, 252))
     ## @TODO 直接单击的时候只有数直线
+    plt.show()

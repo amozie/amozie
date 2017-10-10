@@ -33,6 +33,7 @@ class TechStrategy():
 
         self.iter = None
         self.data_hist = None
+        self.data_i = None
         self.is_position = False
 
 
@@ -94,6 +95,7 @@ class TechStrategy():
         for i in range(data.shape[0]):
             self.iter = i
             self.data_hist = data.iloc[0:i+1]
+            self.data_i = data.iloc[i]
             try:
                 datestr = data.iloc[i].date
             except AttributeError:

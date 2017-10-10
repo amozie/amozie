@@ -1,5 +1,6 @@
 from stockzie.strategy.TechStrategy import TechStrategy
 import numpy as np
+import pywt
 
 
 class TestTechStrategy(TechStrategy):
@@ -8,14 +9,7 @@ class TestTechStrategy(TechStrategy):
 
 
 class MA520TechStrategy(TechStrategy):
-    def __init__(self):
-        super().__init__()
-        self.ma5_list = []
-        self.ma10_list = []
-        self.ma20_list = []
-
     def _init_trading(self, data):
-        super()._init_trading(data)
         self.ma5_list = []
         self.ma10_list = []
         self.ma20_list = []
@@ -50,14 +44,24 @@ class MA520TechStrategy(TechStrategy):
         if self.iter < con20 + 1:
             ma520 = 0
         else:
-            if ma5_cross > self.ma5 and ma10_cross > self.ma10 and ma20_cross > self.ma20:
-                ma520 = 1
+            if ((self.data_i.open <= ma20_cross < self.data_i.close) or
+                    (self.data_i.open > ma20_cross >= self.data_i.low)):
                 self.buy_simple(ma20_cross)
-            elif ma20_cross < self.ma20:
+                ma520 = 1
+            elif ((self.data_i.open >= ma20_cross > self.data_i.close) or
+                    (self.data_i.open < ma20_cross <= self.data_i.high)):
+                self.sell_simple(ma20_cross)
                 ma520 = -1
-                self.sell_simple(ma5_cross)
             else:
                 ma520 = 0
+            # if ma5_cross > self.ma5 and ma10_cross > self.ma10 and ma20_cross > self.ma20:
+            #     ma520 = 1
+            #     self.buy_simple(ma20_cross)
+            # elif ma20_cross < self.ma20:
+            #     ma520 = -1
+            #     self.sell_simple(ma5_cross)
+            # else:
+            #     ma520 = 0
         self._add_technique_iter('ma1', ma5)
         self._add_technique_iter('ma2', ma10)
         self._add_technique_iter('ma3', ma20)
@@ -70,3 +74,21 @@ class MA520TechStrategy(TechStrategy):
         test = data.close.values
         test = np.insert(test, 0 , [np.nan]*20)
         # self._add_technique('test', test, x_axis=np.arange(test.size))
+
+
+class WaveHisTechStrategy(TechStrategy):
+    def _init_trading(self, data):
+        self.wavelet = 'db2'
+        self.level = 6
+
+    def _handle_trading(self, data):
+        close = self.data_hist.close.values[:-1]
+        wla = np.nan
+        if self.iter > 0:
+            wp = pywt.WaveletPacket(close, self.wavelet, maxlevel=self.level)
+            new_wp = pywt.WaveletPacket(None, self.wavelet, maxlevel=self.level)
+            node = 'a' * self.level
+            new_wp[node] = wp[node]
+            wl = new_wp.reconstruct()
+            wla = wl[close.size-1]
+        self._add_technique_iter('wl', wla)

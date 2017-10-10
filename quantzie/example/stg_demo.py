@@ -4,6 +4,9 @@ import six
 import timeit
 from quantdigger import *
 from quantdigger.digger.analyze import AnalyzeFrame
+import matplotlib.pyplot as plt
+
+from quantzie.strategy.common import *
 
 SIZE = 10
 
@@ -48,6 +51,19 @@ class Stg1(Strategy):
     def on_exit(self, ctx):
         pass
 
+class Stg2(Strategy):
+    def on_init(self, ctx):
+        ctx.test = TEST(ctx.close, 'test')
+
+    def on_bar(self, ctx):
+        if ctx.curbar == 1:
+            ctx.buy(ctx.close, 1)
+        elif ctx.curbar == 50:
+            ctx.sell(ctx.close, 1)
+
+    def on_exit(self, ctx):
+        pass
+
 
 if __name__ == '__main__':
     start = timeit.default_timer()
@@ -56,7 +72,7 @@ if __name__ == '__main__':
                    cache_path='E:/_cache_tushare')
     set_symbols(['600096.SH-1.Day'], '2000-1-1', '2016-4-1')
     # set_symbols(['BB.SHFE-1.Minute'])
-    profile = add_strategy([Stg1('S1')], {'capital': 500000.0})
+    profile = add_strategy([Stg2('S1')], {'capital': 500000.0})
     run()
     stop = timeit.default_timer()
     six.print_('using time: %d seconds' % (stop - start))
@@ -65,6 +81,8 @@ if __name__ == '__main__':
     s = 0
     curve0 = finance.create_equity_curve(profile.all_holdings(0))
     AnalyzeFrame(profile)
-    plotting.plot_strategy(profile.data(0), profile.technicals(0),
+    plotting.plot_strategy(profile.data(0),
+                           {1: profile.technicals(0)},
                            profile.deals(0), curve0.equity.values,
                            profile.marks(0))
+    plt.show()
