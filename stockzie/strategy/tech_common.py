@@ -79,16 +79,57 @@ class MA520TechStrategy(TechStrategy):
 class WaveHisTechStrategy(TechStrategy):
     def _init_trading(self, data):
         self.wavelet = 'db2'
-        self.level = 6
+        self.level = 8
 
     def _handle_trading(self, data):
         close = self.data_hist.close.values[:-1]
         wla = np.nan
-        if self.iter > 0:
+        trend = 0
+        if self.iter > 1:
             wp = pywt.WaveletPacket(close, self.wavelet, maxlevel=self.level)
             new_wp = pywt.WaveletPacket(None, self.wavelet, maxlevel=self.level)
             node = 'a' * self.level
             new_wp[node] = wp[node]
             wl = new_wp.reconstruct()
-            wla = wl[close.size-1]
+            try:
+                wla = wl[close.size]
+                wla_0 = wl[close.size - 1]
+            except IndexError:
+                wla = wl[close.size - 1]
+                wla_0 = wl[close.size - 2]
+            trend = wla - wla_0
+        if trend > 0:
+            trend = 1
+        elif trend < 0:
+            trend = -1
+        else:
+            trend = 0
         self._add_technique_iter('wl', wla)
+        self._add_technique_iter('trend', trend, 3)
+
+        trade = 0
+        if self.iter > 1:
+            trade = price_cross_trend(self, wla)
+        self._add_technique_iter('trade', trade, 3)
+
+
+def price_cross_trend(self, trend_price):
+    data_i = self.data_i
+    # if data_i.open <= trend_price < data_i.close or (data_i.open > trend_price > data_i.low and data_i.close > trend_price):
+    #     self.buy_simple(trend_price)
+    #     return 1
+    # elif data_i.open >= trend_price > data_i.close or (data_i.open < trend_price < data_i.high and data_i.close < trend_price):
+    #     self.sell_simple(trend_price)
+    #     return -1
+    # else:
+    #     return 0
+    if data_i.close > trend_price:
+        self.buy_simple(data_i.close)
+        return 1
+    elif data_i.close < trend_price:
+        self.sell_simple(data_i.close)
+        return -1
+    else:
+        return 0
+
+

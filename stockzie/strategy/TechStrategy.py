@@ -61,7 +61,7 @@ class TechStrategy():
 
     ####################################
 
-    def _add_technique(self, name, value, row=0, style='', width=None, alpha=None, x_axis=None):
+    def _add_technique(self, name, value, row=0, style='', width=None, alpha=None, x_axis=None, twin=False):
         self.__techniques[name] = {
                 'name': name,
                 'value': value,
@@ -69,10 +69,11 @@ class TechStrategy():
                 'style': style,
                 'width': width,
                 'alpha': alpha,
-                'x_axis': x_axis
+                'x_axis': x_axis,
+                'twin': twin
             }
 
-    def _add_technique_iter(self, name, value_iter, row=0, style='', width=None, alpha=None, x_axis=None):
+    def _add_technique_iter(self, name, value_iter, row=0, style='', width=None, alpha=None, x_axis=None, twin=False):
         technique_dict = self.__techniques.get(name)
         if technique_dict is None:
             self.__techniques[name] = {
@@ -82,7 +83,8 @@ class TechStrategy():
                 'style': style,
                 'width': width,
                 'alpha': alpha,
-                'x_axis': x_axis
+                'x_axis': x_axis,
+                'twin': twin
             }
         else:
             technique_dict['value'].append(value_iter)
@@ -197,7 +199,7 @@ class TechStrategy():
                     total = total * cur_price / last_price
 
             total_trading.append(total)
-        self._add_technique('Asset', total_trading, 2)
+        self._add_technique('ASSET', total_trading, 1, twin=True)
 
 
 

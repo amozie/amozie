@@ -64,9 +64,22 @@ class Stock:
                 x_axis = x_axis_all
             else:
                 x_axis = technique['x_axis']
-            ax[technique['row']].plot(
-                x_axis, technique['value'], technique['style'],
-                label=technique['name'], alpha=technique['alpha'], linewidth=technique['width'])
+            ax_sel = ax[technique['row']]
+            if technique['twin']:
+                xlim = ax_sel.get_xlim()
+                xticks = ax_sel.get_xticks()
+                xticklabels = ax_sel.get_xticklabels()
+                ax_twin = ax_sel.twinx()
+                ax_twin.plot(
+                    x_axis, technique['value'], technique['style'],
+                    label=technique['name'], alpha=technique['alpha'], linewidth=technique['width'])
+                ax_sel.set_xlim(xlim)
+                ax_sel.set_xticks(xticks)
+                ax_sel.set_xticklabels(xticklabels)
+            else:
+                ax_sel.plot(
+                    x_axis, technique['value'], technique['style'],
+                    label=technique['name'], alpha=technique['alpha'], linewidth=technique['width'])
 
     def get_technique_max_row(self):
         max_row = 0

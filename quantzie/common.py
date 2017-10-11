@@ -12,10 +12,11 @@ class Stg1(Strategy):
         ctx.ma = MAZ(ctx.close, 20, 'ma', 'y', 2)
 
     def on_bar(self, ctx):
-        if ctx.open <= ctx.ma < ctx.close or ctx.open > ctx.ma >= ctx.low:
-            ctx.buy(ctx.ma, 100)
-        elif ctx.open >= ctx.ma > ctx.close or ctx.open < ctx <= ctx.high:
-            ctx.sell(ctx.ma, 100)
+        if ctx.pos() == 0 and (ctx.open <= ctx.ma < ctx.close or ctx.open > ctx.ma >= ctx.low):
+            q = ctx.cash() // float(ctx.ma)
+            ctx.buy(ctx.ma, q)
+        elif ctx.pos() > 0 and (ctx.open >= ctx.ma > ctx.close or ctx.open < ctx.ma <= ctx.high):
+            ctx.sell(ctx.ma, ctx.pos())
 
     def on_exit(self, ctx):
         pass
@@ -25,7 +26,7 @@ if __name__ == '__main__':
     start = timeit.default_timer()
     ConfigUtil.set(source='cached-tushare',
                    cache_path='E:/_cache_tushare')
-    set_symbols(['000070.SH-1.Day'], '2016-09-01')
+    set_symbols(['600056.SH-1.Day'], '2016-09-01')
     profile = add_strategy([Stg1('Stg1')], {'capital': 100000.0})
     run()
     stop = timeit.default_timer()
