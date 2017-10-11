@@ -200,8 +200,6 @@ class TechStrategy():
         self._add_technique('ASSET', total_trading, 1, twin=True)
 
 
-
-
 class Trading():
     def __init__(self, cash):
         self.__cash = cash
