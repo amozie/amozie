@@ -7,15 +7,13 @@ import statsmodels.api as sm
 
 class TestTechnique(Technique):
     def run(self, data) -> list:
-        self.clear()
         self._add_technique('close', data.close, 0, 'r--', 1, 0.8)
         self._add_technique('open', data.open, 0, 'b--', 1, 0.8)
-        return self.get()
+        return super().run(data)
 
 
 class MA520Technique(Technique):
     def run(self, data) -> list:
-        self.clear()
         ma5 = talib.MA(data.close.values, 5)
         ma20 = talib.MA(data.close.values, 20)
         signal = []
@@ -32,12 +30,11 @@ class MA520Technique(Technique):
         self._add_technique('ma20', ma20)
         self._add_technique('trading', trade, 2, '*')
         self._add_technique('asset', asset, 3)
-        return self.get()
+        return super().run(data)
 
 
 class MA520LineTechnique(Technique):
     def run(self, data) -> list:
-        self.clear()
         index = np.arange(data.index.size)
         ma_fast = talib.MA(data.close.values, 12)
         ma_slow = talib.MA(data.close.values, 18)
@@ -75,12 +72,11 @@ class MA520LineTechnique(Technique):
         self._add_technique('down', y_down, x_axis=x_down, width=3)
         self._add_technique('ma5', ma_fast, 2, width=1, alpha=0.5)
         self._add_technique('ma20', ma_slow, 2, width=1, alpha=0.5)
-        return self.get()
+        return super().run(data)
 
 
 class ATRTechnique(Technique):
     def run(self, data) -> list:
-        self.clear()
         close = data.close.values
         high = data.high.values
         low = data.low.values
@@ -95,12 +91,11 @@ class ATRTechnique(Technique):
         self._add_technique('ATR', atr42, 2)
         self._add_technique('UP', close_up, style='b--', width=1, alpha=0.5)
         self._add_technique('DOWN', close_down, style='b--', width=1, alpha=0.5)
-        return self.get()
+        return super().run(data)
 
 
 class WaveletTechnique(Technique):
     def run(self, data) -> list:
-        self.clear()
         close = data.close.values[:-7]
         wavelet = 'db3'
         level = 4
@@ -126,12 +121,11 @@ class WaveletTechnique(Technique):
         #     wld_list.append(wld)
         # for i, wl in enumerate(wld_list):
         #     self._add_technique('D{0}'.format(i + 1), wl, 2, x_axis=np.arange(wl.size))
-        return self.get()
+            return super().run(data)
 
 
 class WaveletHistoryTechnique(Technique):
     def run(self, data) -> list:
-        self.clear()
         close_all = data.close.values
         wavelet = 'db2'
         level = 4
@@ -145,7 +139,7 @@ class WaveletHistoryTechnique(Technique):
             wl = new_wp.reconstruct()
             wla.append(wl[i])
         self._add_technique('WLA', wla, x_axis=np.arange(len(wla)))
-        return self.get()
+        return super().run(data)
 
 
 class LineTechnique(Technique):
@@ -153,9 +147,8 @@ class LineTechnique(Technique):
         pass
 
     def run(self, data) -> list:
-        self.clear()
         index = np.arange(data.index.size)
         close = data.close.values
         start = 0
 
-        return self.get()
+        return super().run(data)

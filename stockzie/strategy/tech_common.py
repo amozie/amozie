@@ -115,19 +115,11 @@ class WaveHisTechStrategy(TechStrategy):
 
 def price_cross_trend(self, trend_price):
     data_i = self.data_i
-    # if data_i.open <= trend_price < data_i.close or (data_i.open > trend_price > data_i.low and data_i.close > trend_price):
-    #     self.buy_simple(trend_price)
-    #     return 1
-    # elif data_i.open >= trend_price > data_i.close or (data_i.open < trend_price < data_i.high and data_i.close < trend_price):
-    #     self.sell_simple(trend_price)
-    #     return -1
-    # else:
-    #     return 0
-    if data_i.close > trend_price:
-        self.buy_simple(data_i.close)
+    if data_i.open <= trend_price < data_i.close or (data_i.open > trend_price > data_i.low and data_i.close > trend_price):
+        self.buy_simple(trend_price)
         return 1
-    elif data_i.close < trend_price:
-        self.sell_simple(data_i.close)
+    elif data_i.open >= trend_price > data_i.close or (data_i.open < trend_price < data_i.high and data_i.close < trend_price):
+        self.sell_simple(trend_price)
         return -1
     else:
         return 0

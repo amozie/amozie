@@ -90,8 +90,6 @@ class TechStrategy():
             technique_dict['value'].append(value_iter)
 
     def run(self, data):
-        self.__techniques.clear()
-        self.__trading_simple.clear()
         self._init_trading(data)
         self.__last_day = None
         for i in range(data.shape[0]):

@@ -9,7 +9,7 @@ class Technique():
         self.techniques = []
 
     def run(self, data) -> list:
-        pass
+        return self.techniques
 
     def get(self):
         return self.techniques

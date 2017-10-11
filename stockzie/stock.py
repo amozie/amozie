@@ -35,13 +35,13 @@ class Stocks:
         return figs, axes
 
     def add_technique(self, Technique):
-        tech = Technique()
         for stock in self.stocks:
+            tech = Technique()
             stock.add_technique(tech.run(stock.data))
 
     def add_tech_strategy(self, TechStrategy):
-        strategy = TechStrategy()
         for stock in self.stocks:
+            strategy = TechStrategy()
             stock.add_technique(strategy.run(stock.data))
 
 
