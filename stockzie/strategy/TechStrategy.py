@@ -218,13 +218,13 @@ class Trading:
             quantity = trade['quantity']
             if low <= price <= high:
                 if buy:
-                    if self.cash + TOL_ERR >= price * quantity > -TOL_ERR:
+                    if self.cash + TOL_ERR >= price * quantity > 0:
                         self.cash -= price * quantity
                         self.frozen_pos += quantity
                         self.buy_list.append(price)
                         self.buy_x.append(itr)
                 else:
-                    if self.avail_pos + TOL_ERR >= quantity > -TOL_ERR:
+                    if self.avail_pos + TOL_ERR >= quantity > 0:
                         self.cash += price * quantity
                         self.avail_pos -= quantity
                         stop = trade['stop']
@@ -246,7 +246,7 @@ class Trading:
         self.frozen_pos = 0
 
     def _trading_stop(self, high):
-        if self.avail_pos > -TOL_ERR:
+        if self.avail_pos > 0:
             self.last_max_price = max(high, self.last_max_price)
             self.sell_soft_percentage(self.last_max_price * (1 - self.__stop), stop=True)
         else:
