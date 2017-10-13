@@ -137,6 +137,7 @@ class TechStrategy:
 
     def __calc_trading_tech(self):
         self._add_technique('ASSET', self.__trading.total_list, 1, twin=True)
+        self._add_technique('POS', self.__trading.pos_list, 2)
         self._add_technique('BUY', self.__trading.buy_list, 0, 'r.', x_axis=self.__trading.buy_x)
         self._add_technique('SELL', self.__trading.sell_list, 0, 'g.', x_axis=self.__trading.sell_x)
         self._add_technique('STOP', self.__trading.stop_list, 0, 'm.', x_axis=self.__trading.stop_x)
@@ -160,6 +161,7 @@ class Trading:
         self.__trading_bar = []
 
         self.total_list = []
+        self.pos_list = []
         self.buy_list = []
         self.buy_x = []
         self.sell_list = []
@@ -202,13 +204,13 @@ class Trading:
             quantity = trade['quantity']
             if low <= price <= high:
                 if buy:
-                    if self.__cash + TOL_ERR >= price * quantity:
+                    if self.__cash + TOL_ERR >= price * quantity > TOL_ERR:
                         self.__cash -= price * quantity
                         self.__frozen_pos += quantity
                         self.buy_list.append(price)
                         self.buy_x.append(itr)
                 else:
-                    if self.__avail_pos + TOL_ERR >= quantity:
+                    if self.__avail_pos + TOL_ERR >= quantity > TOL_ERR:
                         self.__cash += price * quantity
                         self.__avail_pos -= quantity
                         stop = trade['stop']
@@ -223,6 +225,7 @@ class Trading:
         self.__trading_bar.clear()
         self._trading_stop(high)
         self.total_list.append(self.__total)
+        self.pos_list.append(self.__position)
 
     def trading_bar_day(self):
         self.__avail_pos += self.__frozen_pos

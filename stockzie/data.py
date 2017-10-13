@@ -57,7 +57,7 @@ def get(codes, start=None, end=None, ktype='D'):
     #     data = data.tail(_TAIL_NUM)
     for code in codes:
         df = ts.get_k_data(code, start=start, end=end, ktype=ktype)
-        datas.append(df[-_TAIL_NUM:])
+        datas.append(df[:])
     return datas
 
 

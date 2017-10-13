@@ -17,7 +17,7 @@ class MA520TechStrategy(TechStrategy):
     def _handle_trading(self, data):
         con5 = 5
         con10 = 10
-        con20 = 20
+        con20 = 6
         ma5 = np.average(self.data_hist.close[-con5:])
         ma10 = np.average(self.data_hist.close[-con10:])
         ma20 = np.average(self.data_hist.close[-con20:])
@@ -41,19 +41,20 @@ class MA520TechStrategy(TechStrategy):
             ma5_hist = np.nan
             ma10_hist = np.nan
             ma20_hist = np.nan
-        if self.iter < con20 + 1:
-            ma520 = 0
-        else:
-            if ((self.data_i.open <= ma20_cross < self.data_i.close) or
-                    (self.data_i.open > ma20_cross >= self.data_i.low)):
-                self.buy_soft_percentage(ma20_cross)
-                ma520 = 1
-            elif ((self.data_i.open >= ma20_cross > self.data_i.close) or
-                    (self.data_i.open < ma20_cross <= self.data_i.high)):
-                self.sell_soft_percentage(ma20_cross)
-                ma520 = -1
-            else:
-                ma520 = 0
+        trade = 0
+        if self.iter > 1:
+            trade = price_cross_trend(self, ma20_cross)
+        self._add_technique_iter('trade', trade, 3)
+            # if ((self.data_i.open <= ma20_cross < self.data_i.close) or
+            #         (self.data_i.open > ma20_cross >= self.data_i.low)):
+            #     self.buy_soft_percentage(ma20_cross)
+            #     ma520 = 1
+            # elif ((self.data_i.open >= ma20_cross > self.data_i.close) or
+            #         (self.data_i.open < ma20_cross <= self.data_i.high)):
+            #     self.sell_soft_percentage(ma20_cross)
+            #     ma520 = -1
+            # else:
+            #     ma520 = 0
             # if ma5_cross > self.ma5 and ma10_cross > self.ma10 and ma20_cross > self.ma20:
             #     ma520 = 1
             #     self.buy_soft_percentage(ma20_cross)
@@ -62,10 +63,9 @@ class MA520TechStrategy(TechStrategy):
             #     self.sell_soft_percentage(ma5_cross)
             # else:
             #     ma520 = 0
-        self._add_technique_iter('ma1', ma5)
-        self._add_technique_iter('ma2', ma10)
-        self._add_technique_iter('ma3', ma20)
-        self._add_technique_iter('ma520', ma520, 3)
+        # self._add_technique_iter('ma1', ma5)
+        # self._add_technique_iter('ma2', ma10)
+        self._add_technique_iter('ma3', ma20_cross)
         self.ma5 = ma5
         self.ma10 = ma10
         self.ma20 = ma20
@@ -79,7 +79,7 @@ class MA520TechStrategy(TechStrategy):
 class WaveHisTechStrategy(TechStrategy):
     def _init_trading(self, data):
         self.wavelet = 'db2'
-        self.level = 8
+        self.level = 5
 
     def _handle_trading(self, data):
         close = self.data_hist.close.values[:-1]
