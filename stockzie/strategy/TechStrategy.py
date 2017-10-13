@@ -129,14 +129,17 @@ class TechStrategy:
 
         return self.__techniques
 
-    def buy_soft_percentage(self, price, percentage):
+    def buy_soft_percentage(self, price, percentage=1.0):
         self.__trading.buy_soft_percentage(price, percentage)
 
-    def sell_soft_percentage(self, price, percentage):
+    def sell_soft_percentage(self, price, percentage=1.0):
         self.__trading.sell_soft_percentage(price, percentage)
 
     def __calc_trading_tech(self):
         self._add_technique('ASSET', self.__trading.total_list, 1, twin=True)
+        self._add_technique('BUY', self.__trading.buy_list, 0, 'r.', x_axis=self.__trading.buy_x)
+        self._add_technique('SELL', self.__trading.sell_list, 0, 'g.', x_axis=self.__trading.sell_x)
+        self._add_technique('STOP', self.__trading.stop_list, 0, 'm.', x_axis=self.__trading.stop_x)
 
 
 class Trading:
@@ -228,4 +231,6 @@ class Trading:
     def _trading_stop(self, high):
         if self.__avail_pos > TOL_ERR:
             self.__last_max_price = max(high, self.__last_max_price)
-            self.sell_soft_percentage(self.__last_max_price * (1 - self.__stop), self.__avail_pos, stop=True)
+            self.sell_soft_percentage(self.__last_max_price * (1 - self.__stop), stop=True)
+        else:
+            self.__last_max_price = 0.0

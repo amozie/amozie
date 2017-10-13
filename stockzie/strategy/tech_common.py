@@ -46,20 +46,20 @@ class MA520TechStrategy(TechStrategy):
         else:
             if ((self.data_i.open <= ma20_cross < self.data_i.close) or
                     (self.data_i.open > ma20_cross >= self.data_i.low)):
-                self.buy_simple(ma20_cross)
+                self.buy_soft_percentage(ma20_cross)
                 ma520 = 1
             elif ((self.data_i.open >= ma20_cross > self.data_i.close) or
                     (self.data_i.open < ma20_cross <= self.data_i.high)):
-                self.sell_simple(ma20_cross)
+                self.sell_soft_percentage(ma20_cross)
                 ma520 = -1
             else:
                 ma520 = 0
             # if ma5_cross > self.ma5 and ma10_cross > self.ma10 and ma20_cross > self.ma20:
             #     ma520 = 1
-            #     self.buy_simple(ma20_cross)
+            #     self.buy_soft_percentage(ma20_cross)
             # elif ma20_cross < self.ma20:
             #     ma520 = -1
-            #     self.sell_simple(ma5_cross)
+            #     self.sell_soft_percentage(ma5_cross)
             # else:
             #     ma520 = 0
         self._add_technique_iter('ma1', ma5)
@@ -116,10 +116,10 @@ class WaveHisTechStrategy(TechStrategy):
 def price_cross_trend(self, trend_price):
     data_i = self.data_i
     if data_i.open <= trend_price < data_i.close or (data_i.open > trend_price > data_i.low and data_i.close > trend_price):
-        self.buy_simple(trend_price)
+        self.buy_soft_percentage(trend_price)
         return 1
     elif data_i.open >= trend_price > data_i.close or (data_i.open < trend_price < data_i.high and data_i.close < trend_price):
-        self.sell_simple(trend_price)
+        self.sell_soft_percentage(trend_price)
         return -1
     else:
         return 0
