@@ -136,7 +136,7 @@ class TechStrategy:
         self.__trading.sell_soft_percentage(price, percentage)
 
     def __calc_trading_tech(self):
-        self._add_technique('ASSET', trading_tech['ASSET'], 1, twin=True)
+        self._add_technique('ASSET', self.__trading.total_list, 1, twin=True)
 
 
 class Trading:
@@ -161,19 +161,22 @@ class Trading:
         self.buy_x = []
         self.sell_list = []
         self.sell_x = []
+        self.stop_list = []
+        self.stop_x = []
 
     def buy_soft_percentage(self, price, percentage=1.0):
         self._add_trading_bar(price, True, self.__cash * percentage / price)
 
-    def sell_soft_percentage(self, price, percentage=1.0):
-        self._add_trading_bar(price, False, self.__position * percentage)
+    def sell_soft_percentage(self, price, percentage=1.0, stop=False):
+        self._add_trading_bar(price, False, self.__position * percentage, stop)
 
-    def _add_trading_bar(self, price, buy, quantity):
+    def _add_trading_bar(self, price, buy, quantity, stop=False):
         self.__trading_bar.append(
             {
                 'buy': buy,
                 'price': price,
-                'quantity': quantity
+                'quantity': quantity,
+                'stop': stop
             }
         )
 
@@ -205,8 +208,13 @@ class Trading:
                     if self.__avail_pos + TOL_ERR >= quantity:
                         self.__cash += price * quantity
                         self.__avail_pos -= quantity
-                        self.sell_list.append(price)
-                        self.sell_x.append(itr)
+                        stop = trade['stop']
+                        if not stop:
+                            self.sell_list.append(price)
+                            self.sell_x.append(itr)
+                        else:
+                            self.stop_list.append(price)
+                            self.stop_x.append(itr)
                 self.update_trading_value(price)
         self.update_trading_value(close)
         self.__trading_bar.clear()
@@ -220,4 +228,4 @@ class Trading:
     def _trading_stop(self, high):
         if self.__avail_pos > TOL_ERR:
             self.__last_max_price = max(high, self.__last_max_price)
-            self.sell_soft_percentage(self.__last_max_price * (1 - self.__stop), self.__avail_pos)
+            self.sell_soft_percentage(self.__last_max_price * (1 - self.__stop), self.__avail_pos, stop=True)
