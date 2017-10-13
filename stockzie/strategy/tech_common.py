@@ -116,10 +116,10 @@ class WaveHisTechStrategy(TechStrategy):
 def price_cross_trend(self, trend_price):
     data_i = self.data_i
     if data_i.open <= trend_price < data_i.close or (data_i.open > trend_price > data_i.low and data_i.close > trend_price):
-        self.buy_soft_percentage(trend_price)
+        self._buy_soft_percentage(trend_price)
         return 1
     elif data_i.open >= trend_price > data_i.close or (data_i.open < trend_price < data_i.high and data_i.close < trend_price):
-        self.sell_soft_percentage(trend_price)
+        self._sell_soft_percentage(trend_price)
         return -1
     else:
         return 0
