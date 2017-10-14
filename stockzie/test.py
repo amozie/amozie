@@ -79,7 +79,7 @@ def test6():
 
 
 def test7():
-    stocks = sz.Stocks(['000070', '300383', '600056', '002371'], start='2016-09-01', ktype='30')
+    stocks = sz.Stocks(['000070', '300383', '600056', '002371'], start='2016-09-01', ktype='D')
     # stocks.add_technique(MA520Technique)
     stocks.add_tech_strategy(MA520TechStrategy)
     stocks.plot_kv()

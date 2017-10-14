@@ -212,7 +212,9 @@ class Trading:
         low = data_i.low
         high = data_i.high
         close = data_i.close
-        for trade in self.__trading_bar:
+        op = data_i.open
+        trading_bar_sorted = sorted(self.__trading_bar, key=lambda i: i['price'], reverse=op > close)
+        for trade in trading_bar_sorted:
             buy = trade['buy']
             price = trade['price']
             quantity = trade['quantity']

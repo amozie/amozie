@@ -41,10 +41,8 @@ class MA520TechStrategy(TechStrategy):
             ma5_hist = np.nan
             ma10_hist = np.nan
             ma20_hist = np.nan
-        trade = 0
         if self.iter > 1:
-            trade = price_cross_trend(self, ma20_cross)
-        self._add_technique_iter('trade', trade, 3)
+            price_cross_trend(self, ma20_cross)
             # if ((self.data_i.open <= ma20_cross < self.data_i.close) or
             #         (self.data_i.open > ma20_cross >= self.data_i.low)):
             #     self.buy_soft_percentage(ma20_cross)
@@ -84,7 +82,7 @@ class WaveHisTechStrategy(TechStrategy):
     def _handle_trading(self, data):
         close = self.data_hist.close.values[:-1]
         wla = np.nan
-        trend = 0
+        direct = 0
         if self.iter > 1:
             wp = pywt.WaveletPacket(close, self.wavelet, maxlevel=self.level)
             new_wp = pywt.WaveletPacket(None, self.wavelet, maxlevel=self.level)
@@ -97,31 +95,35 @@ class WaveHisTechStrategy(TechStrategy):
             except IndexError:
                 wla = wl[close.size - 1]
                 wla_0 = wl[close.size - 2]
-            trend = wla - wla_0
-        if trend > 0:
-            trend = 1
-        elif trend < 0:
-            trend = -1
+            direct = wla - wla_0
+        if direct > 0:
+            direct = 1
+        elif direct < 0:
+            direct = -1
         else:
-            trend = 0
+            direct = 0
         self._add_technique_iter('wl', wla)
-        self._add_technique_iter('trend', trend, 3)
+        self._add_technique_iter('direct', direct, 3)
 
-        trade = 0
         if self.iter > 1:
-            trade = price_cross_trend(self, wla)
-        self._add_technique_iter('trade', trade, 3)
+            price_cross_trend(self, wla)
 
 
-def price_cross_trend(self, trend_price):
+def price_cross_trend(self, trend):
     data_i = self.data_i
-    if data_i.open <= trend_price < data_i.close or (data_i.open > trend_price > data_i.low and data_i.close > trend_price):
-        self._buy_soft_percentage(trend_price)
-        return 1
-    elif data_i.open >= trend_price > data_i.close or (data_i.open < trend_price < data_i.high and data_i.close < trend_price):
-        self._sell_soft_percentage(trend_price)
-        return -1
-    else:
-        return 0
+    open = data_i.open
+    high = data_i.high
+    low = data_i.low
+    close = data_i.close
+
+    if open <= trend < close or (open > trend > low and close > trend):
+        self._buy_soft_percentage(trend)
+    elif open >= trend > close or (open < trend < high and close < trend):
+        self._sell_soft_percentage(trend)
+
+    # if open < trend:
+    #     self._buy_soft_percentage(trend)
+    # elif open > trend:
+    #     self._sell_soft_percentage(trend)
 
 
