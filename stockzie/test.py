@@ -87,7 +87,7 @@ def test7():
 
 
 def test8():
-    stocks = sz.Stocks(['000070', '300383', '600056', '002371'], start='2014-01-01')
+    stocks = sz.Stocks(['002371'], start='2016-08-01')
     # stocks.add_technique(MA520Technique)
     stocks.add_tech_strategy(WaveHisTechStrategy)
     stocks.plot_kv()
@@ -95,4 +95,4 @@ def test8():
 
 
 if __name__ == '__main__':
-    test7()
+    test8()

@@ -9,13 +9,13 @@ import matplotlib.pyplot as plt
 
 class Stg1(Strategy):
     def on_init(self, ctx):
-        ctx.ma = MAZ(ctx.close, 20, 'ma', 'y', 2)
+        ctx.ma = MAZ(ctx.close, 6, 'ma', 'g', 1)
 
     def on_bar(self, ctx):
-        if ctx.pos() == 0 and (ctx.open <= ctx.ma < ctx.close or ctx.open > ctx.ma >= ctx.low):
+        if ctx.pos() == 0 and (ctx.open <= ctx.ma < ctx.close or (ctx.open > ctx.ma > ctx.low and ctx.close > ctx.ma)):
             q = ctx.cash() // float(ctx.ma)
             ctx.buy(ctx.ma, q)
-        elif ctx.pos() > 0 and (ctx.open >= ctx.ma > ctx.close or ctx.open < ctx.ma <= ctx.high):
+        elif ctx.pos() > 0 and (ctx.open >= ctx.ma > ctx.close or (ctx.open < ctx.ma < ctx.high and ctx.close < ctx.ma)):
             ctx.sell(ctx.ma, ctx.pos())
 
     def on_exit(self, ctx):
@@ -34,7 +34,7 @@ if __name__ == '__main__':
 
     curve0 = finance.create_equity_curve(profile.all_holdings(0))
     curve = finance.create_equity_curve(profile.all_holdings())
-    # AnalyzeFrame(profile)
+    AnalyzeFrame(profile)
     plotting.plot_strategy(profile.data(0),
                            {
                                1: [profile.technicals(0)]

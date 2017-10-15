@@ -77,7 +77,7 @@ class MA520TechStrategy(TechStrategy):
 class WaveHisTechStrategy(TechStrategy):
     def _init_trading(self, data):
         self.wavelet = 'db2'
-        self.level = 5
+        self.level = 4
 
     def _handle_trading(self, data):
         close = self.data_hist.close.values[:-1]
