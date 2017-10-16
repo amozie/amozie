@@ -26,7 +26,7 @@ if __name__ == '__main__':
     start = timeit.default_timer()
     ConfigUtil.set(source='cached-tushare',
                    cache_path='E:/_cache_tushare')
-    set_symbols(['600056.SH-1.Day'], '2016-09-01')
+    set_symbols(['002380.SZ-1.Day'], '2016-09-01')
     profile = add_strategy([Stg1('Stg1')], {'capital': 100000.0})
     run()
     stop = timeit.default_timer()

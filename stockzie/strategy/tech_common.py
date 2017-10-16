@@ -99,50 +99,6 @@ class TwoMATechStrategy(TechStrategy):
         self._add_technique_iter('ma_l', ma_long_cross)
 
 
-class WaveHisTechStrategy(TechStrategy):
-    def _init_trading(self, data):
-        self.wavelet = 'db2'
-        self.level = 4
-
-    def calc(self, close):
-        wla = np.nan
-        direct = 0
-        if self.iter > 1:
-            wp = pywt.WaveletPacket(close, self.wavelet, maxlevel=self.level)
-            new_wp = pywt.WaveletPacket(None, self.wavelet, maxlevel=self.level)
-            node = 'a' * self.level
-            new_wp[node] = wp[node]
-            wl = new_wp.reconstruct()
-            try:
-                wla = wl[close.size]
-                wla_0 = wl[close.size - 1]
-            except IndexError:
-                wla = wl[close.size - 1]
-                wla_0 = wl[close.size - 2]
-            direct = wla - wla_0
-        if direct > 0:
-            direct = 1
-        elif direct < 0:
-            direct = -1
-        else:
-            direct = 0
-        return wla, direct
-
-    def _handle_trading(self, data):
-        close = self.data_hist.close.values[:-1]
-        wla, direct = self.calc(close)
-        self._add_technique_iter('wl', wla)
-        self._add_technique_iter('direct', direct, 3)
-
-        if self.iter > 1:
-            stg_price_cross_trend(self, wla)
-
-    def _end_trading(self, data):
-        close = data.close.values
-        wla, direct = self.calc(close)
-        print('predict: {0}, {1}'.format(wla, direct))
-
-
 def price_cross_trend(self, *args):
     data_i = self.data_i
     op = data_i.open
@@ -170,14 +126,19 @@ def stg_price_cross_trend(self, *args):
         self.last_trade = 0
         last_trade = self.last_trade
 
-    for trend in args:
+    for arg in args:
+        if isinstance(arg, list) or isinstance(arg, tuple):
+            trend, direct = arg
+        else:
+            trend = arg
+            direct = 0
         if last_trade == -1 and op < trend:
             self._sell_soft_percentage(op)
-        if op < trend:
+        if op < trend and direct >= 0:
             self._buy_soft_percentage(trend)
             if close < trend:
                 self.last_trade = -1
-        elif op > trend:
+        elif op > trend and direct <= 0:
             self._sell_soft_percentage(trend)
             if close > trend:
                 self._buy_soft_percentage(close)

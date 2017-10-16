@@ -365,16 +365,16 @@ class Trading:
         print('股票代码：{0}'.format(self.__code))
         print('总周期：{0}'.format(len(self.total_list)))
         print('总资产：{0}'.format(self.total))
-        print('净利润：{0}'.format(self.total - self.init_total))
-        print('平均每日净利润：{0}'.format((self.total - self.init_total)/self.process_total_period))
-
-        print('-' * 10)
-
-        if len(self.process_profit) > 0:
-            print('总利润：{0}'.format(sum(self.process_profit)))
-            print('平均每日利润：{0}'.format(sum(self.process_profit)/sum(self.process_profit_period)))
-        if len(self.process_loss) > 0:
-            print('总损失：{0}'.format(sum(self.process_loss)))
-            print('平均每日损失：{0}'.format(sum(self.process_loss)/sum(self.process_loss_period)))
+        # print('净利润：{0}'.format(self.total - self.init_total))
+        # print('平均每日净利润：{0}'.format((self.total - self.init_total)/self.process_total_period))
+        #
+        # print('-' * 10)
+        #
+        # if len(self.process_profit) > 0:
+        #     print('总利润：{0}'.format(sum(self.process_profit)))
+        #     print('平均每日利润：{0}'.format(sum(self.process_profit)/sum(self.process_profit_period)))
+        # if len(self.process_loss) > 0:
+        #     print('总损失：{0}'.format(sum(self.process_loss)))
+        #     print('平均每日损失：{0}'.format(sum(self.process_loss)/sum(self.process_loss_period)))
 
         print('#' * 20)

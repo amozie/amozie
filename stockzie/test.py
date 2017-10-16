@@ -8,6 +8,7 @@ import talib as tl
 
 import stockzie as sz
 from stockzie.strategy.tech_common import *
+from stockzie.strategy.tech_wavelet import *
 from stockzie.technique.common import *
 
 
@@ -87,19 +88,19 @@ def test7():
 
 
 def test8():
-    stocks = sz.Stocks(['002371'], start='2016-08-01')
+    stocks = sz.Stocks(['000070', '002380', '600056', '600740', '002371'], start='2016-08-01')
     # stocks.add_technique(MA520Technique)
     stocks.add_tech_strategy(WaveHisTechStrategy)
-    # stocks.plot_kv()
-    # plt.show()
+    stocks.plot_kv()
+    plt.show()
 
 
 def test9():
     stocks = sz.Stocks(['002371'], start='2016-08-01')
     # stocks.add_technique(MA520Technique)
     stocks.add_tech_strategy(MultiMATechStrategy)
-    # stocks.plot_kv()
-    # plt.show()
+    stocks.plot_kv()
+    plt.show()
 
 
 def test10():
@@ -111,5 +112,5 @@ def test10():
 
 
 if __name__ == '__main__':
-    test8()
+    test9()
     # test8()
