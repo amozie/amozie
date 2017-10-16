@@ -1,4 +1,4 @@
-from stockzie.strategy.TechStrategy import TechStrategy
+from stockzie.strategy.TechStrategy import *
 import numpy as np
 import pywt
 
@@ -17,7 +17,7 @@ class MA520TechStrategy(TechStrategy):
     def _handle_trading(self, data):
         con5 = 5
         con10 = 10
-        con20 = 6
+        con20 = 3
         ma5 = np.average(self.data_hist.close[-con5:])
         ma10 = np.average(self.data_hist.close[-con10:])
         ma20 = np.average(self.data_hist.close[-con20:])
@@ -68,19 +68,43 @@ class MA520TechStrategy(TechStrategy):
         self.ma10 = ma10
         self.ma20 = ma20
 
-    def _after_trading(self, data):
-        test = data.close.values
-        test = np.insert(test, 0 , [np.nan]*20)
-        # self._add_technique('test', test, x_axis=np.arange(test.size))
+    def _end_trading(self, data):
+        print('ma predict: {0}'.format(np.average(self.data_hist.close.iloc[-6 + 1:])))
+
+
+class MultiMATechStrategy(TechStrategy):
+    def _handle_trading(self, data):
+        short = 3
+        middle = 6
+        long = 12
+        ma_short_cross = np.average(self.data_hist.close.iloc[-short:-1])
+        ma_middle_cross = np.average(self.data_hist.close.iloc[-middle:-1])
+        ma_long_cross = np.average(self.data_hist.close.iloc[-long:-1])
+        if self.iter >= short:
+            price_cross_trend(self, ma_short_cross, ma_middle_cross, ma_long_cross)
+        self._add_technique_iter('ma_s', ma_short_cross)
+        self._add_technique_iter('ma_m', ma_middle_cross)
+        self._add_technique_iter('ma_l', ma_long_cross)
+
+
+class TwoMATechStrategy(TechStrategy):
+    def _handle_trading(self, data):
+        short = 3
+        long = 6
+        ma_short_cross = np.average(self.data_hist.close.iloc[-short:-1])
+        ma_long_cross = np.average(self.data_hist.close.iloc[-long:-1])
+        if self.iter >= short:
+            price_cross_two_trend(self, ma_short_cross, ma_long_cross)
+        self._add_technique_iter('ma_s', ma_short_cross)
+        self._add_technique_iter('ma_l', ma_long_cross)
 
 
 class WaveHisTechStrategy(TechStrategy):
     def _init_trading(self, data):
         self.wavelet = 'db2'
-        self.level = 5
+        self.level = 4
 
-    def _handle_trading(self, data):
-        close = self.data_hist.close.values[:-1]
+    def calc(self, close):
         wla = np.nan
         direct = 0
         if self.iter > 1:
@@ -102,28 +126,73 @@ class WaveHisTechStrategy(TechStrategy):
             direct = -1
         else:
             direct = 0
+        return wla, direct
+
+    def _handle_trading(self, data):
+        close = self.data_hist.close.values[:-1]
+        wla, direct = self.calc(close)
         self._add_technique_iter('wl', wla)
         self._add_technique_iter('direct', direct, 3)
 
         if self.iter > 1:
-            price_cross_trend(self, wla)
+            stg_price_cross_trend(self, wla)
+
+    def _end_trading(self, data):
+        close = data.close.values
+        wla, direct = self.calc(close)
+        print('predict: {0}, {1}'.format(wla, direct))
 
 
-def price_cross_trend(self, trend):
+def price_cross_trend(self, *args):
     data_i = self.data_i
-    open = data_i.open
+    op = data_i.open
     high = data_i.high
     low = data_i.low
     close = data_i.close
 
-    if open <= trend < close or (open > trend > low and close > trend):
-        self._buy_soft_percentage(trend)
-    elif open >= trend > close or (open < trend < high and close < trend):
-        self._sell_soft_percentage(trend)
+    for trend in args:
+        if op <= trend < close or (op > trend > low and close > trend):
+            self._buy_soft_percentage(trend)
+        elif op >= trend > close or (op < trend < high and close < trend):
+            self._sell_soft_percentage(trend)
 
-    # if open < trend:
-    #     self._buy_soft_percentage(trend)
-    # elif open > trend:
-    #     self._sell_soft_percentage(trend)
 
+def stg_price_cross_trend(self, *args):
+    data_i = self.data_i
+    op = data_i.open
+    high = data_i.high
+    low = data_i.low
+    close = data_i.close
+
+    try:
+        last_trade = self.last_trade
+    except AttributeError:
+        self.last_trade = 0
+        last_trade = self.last_trade
+
+    for trend in args:
+        if last_trade == -1 and op < trend:
+            self._sell_soft_percentage(op)
+        if op < trend:
+            self._buy_soft_percentage(trend)
+            if close < trend:
+                self.last_trade = -1
+        elif op > trend:
+            self._sell_soft_percentage(trend)
+            if close > trend:
+                self._buy_soft_percentage(close)
+                self.last_trade = 1
+
+
+def price_cross_two_trend(self, t1, t2):
+    data_i = self.data_i
+    op = data_i.open
+    high = data_i.high
+    low = data_i.low
+    close = data_i.close
+    tmin = min(t1, t2)
+    tmax = max(t1, t2)
+
+    self._sell_soft_percentage(tmax)
+    self._buy_soft_percentage(tmin)
 

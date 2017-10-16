@@ -79,20 +79,37 @@ def test6():
 
 
 def test7():
-    stocks = sz.Stocks(['000070', '300383', '600056', '002371'], start='2016-09-01', ktype='D')
+    stocks = sz.Stocks(['002371'], start='2016-08-01', ktype='D')
     # stocks.add_technique(MA520Technique)
     stocks.add_tech_strategy(MA520TechStrategy)
-    stocks.plot_kv()
-    plt.show()
+    # stocks.plot_kv()
+    # plt.show()
 
 
 def test8():
-    stocks = sz.Stocks(['000070', '300383', '600056', '002371'], start='2014-01-01')
+    stocks = sz.Stocks(['002371'], start='2016-08-01')
     # stocks.add_technique(MA520Technique)
     stocks.add_tech_strategy(WaveHisTechStrategy)
-    stocks.plot_kv()
-    plt.show()
+    # stocks.plot_kv()
+    # plt.show()
+
+
+def test9():
+    stocks = sz.Stocks(['002371'], start='2016-08-01')
+    # stocks.add_technique(MA520Technique)
+    stocks.add_tech_strategy(MultiMATechStrategy)
+    # stocks.plot_kv()
+    # plt.show()
+
+
+def test10():
+    stocks = sz.Stocks(['002371'], start='2016-08-01')
+    # stocks.add_technique(MA520Technique)
+    stocks.add_tech_strategy(TwoMATechStrategy)
+    # stocks.plot_kv()
+    # plt.show()
 
 
 if __name__ == '__main__':
-    test7()
+    test8()
+    # test8()

@@ -18,21 +18,30 @@ class Stocks:
             stocks = self.stocks[item]
         else:
             stocks = self.stocks
-        figs, axes = [], []
+        fig_list, ax_list = [], []
         max_row = rows - 1
         for stock in stocks:
             max_row = max(max_row, stock.get_technique_max_row())
         for stock in stocks:
-            fig, ax = sz.plot.init_fig_axes(max_row + 1, stock.data)
+            fig, axes = sz.plot.init_fig_axes(max_row + 1, stock.data)
             fig.suptitle(stock.code)
-            sz.plot.kline(ax[0], data=stock.data)
-            sz.plot.volume(ax[1], data=stock.data)
-            stock.plot_technique(ax)
-            for i in ax:
+            sz.plot.kline(axes[0], data=stock.data)
+            sz.plot.volume(axes[1], data=stock.data)
+            axes_twin = []
+            for i in axes:
+                ax_twin = i.twinx()
+                axes_twin.append(ax_twin)
+            stock.plot_technique(axes, axes_twin)
+            for i in axes:
                 i.legend()
-            figs.append(fig)
-            axes.append(ax)
-        return figs, axes
+            for i in axes_twin:
+                if len(i.lines) == 0:
+                    # i.set_ylim([])
+                    i.set_yticks([])
+                    i.set_yticklabels([])
+            fig_list.append(fig)
+            ax_list.append(axes)
+        return fig_list, ax_list
 
     def add_technique(self, Technique):
         for stock in self.stocks:
@@ -41,7 +50,7 @@ class Stocks:
 
     def add_tech_strategy(self, TechStrategy):
         for stock in self.stocks:
-            strategy = TechStrategy()
+            strategy = TechStrategy(stock.code)
             stock.add_technique(strategy.run(stock.data))
 
 
@@ -57,19 +66,19 @@ class Stock:
         elif isinstance(techniques, dict):
             self.techniques.extend(techniques.values())
 
-    def plot_technique(self, ax):
+    def plot_technique(self, axes, axes_twin):
         x_axis_all = np.arange(self.data.index.size)
         for technique in self.techniques:
             if technique['x_axis'] is None:
                 x_axis = x_axis_all
             else:
                 x_axis = technique['x_axis']
-            ax_sel = ax[technique['row']]
+            ax_sel = axes[technique['row']]
             if technique['twin']:
+                ax_twin = axes_twin[technique['row']]
                 xlim = ax_sel.get_xlim()
                 xticks = ax_sel.get_xticks()
                 xticklabels = ax_sel.get_xticklabels()
-                ax_twin = ax_sel.twinx()
                 ax_twin.plot(
                     x_axis, technique['value'], technique['style'],
                     label=technique['name'], alpha=technique['alpha'], linewidth=technique['width'])
