@@ -54,6 +54,9 @@ class TechStrategy:
         self.data_hist = None
         self.data_i = None
 
+    def get_name(self):
+        return 'TechStrategy'
+
     ####################################
 
     def _init_trading(self, data):

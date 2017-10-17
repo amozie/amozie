@@ -10,6 +10,8 @@ class Stocks:
         for code, data in zip(self.codes, self.datas):
             self.stocks.append(Stock(code, data))
 
+        self.trading_summary = TradingSummary()
+
     def __getitem__(self, item):
         return self.stocks[item]
 
@@ -50,8 +52,27 @@ class Stocks:
 
     def add_tech_strategy(self, TechStrategy):
         for stock in self.stocks:
-            strategy = TechStrategy(stock.code)
-            stock.add_technique(strategy.run(stock.data))
+            tech_strategy = TechStrategy(stock.code)
+            stock.add_tech_strategy(tech_strategy, stock.data)
+        self.calc_stocks_trading()
+
+    def calc_stocks_trading(self):
+        trading_summary = self.trading_summary
+        for tech_strategy in self.stocks[0].tech_strategies:
+            trading_summary.stg_names.append(tech_strategy.get_name())
+
+        profit_list = []
+        for stock in self.stocks:
+            profit_list.append([])
+            for tech_strategy in stock.tech_strategies:
+                trading = tech_strategy.trading
+                profit_list[-1].append(trading.total - trading.init_total)
+
+        trading_summary.calc_dt['profit'] = np.array(profit_list).T
+
+    def stocks_trading_summary(self):
+        for k, v in self.trading_summary.sum_dt.items():
+            print('{0}: {1}')
 
 
 class Stock:
@@ -59,12 +80,17 @@ class Stock:
         self.code = code
         self.data = data
         self.techniques = []
+        self.tech_strategies = []
 
     def add_technique(self, techniques):
         if isinstance(techniques, list):
             self.techniques.extend(techniques)
         elif isinstance(techniques, dict):
             self.techniques.extend(techniques.values())
+
+    def add_tech_strategy(self, tech_strategy, data):
+        self.add_technique(tech_strategy.run(data))
+        self.tech_strategies.append(tech_strategy)
 
     def plot_technique(self, axes, axes_twin):
         x_axis_all = np.arange(self.data.index.size)
@@ -96,3 +122,9 @@ class Stock:
             max_row = max(max_row, technique['row'])
         return max_row
 
+
+class TradingSummary:
+    def __init__(self) -> None:
+        self.stg_names = []
+        self.calc_dt = {}
+        self.sum_dt = {}

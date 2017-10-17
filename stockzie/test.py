@@ -81,7 +81,6 @@ def test6():
 
 def test7():
     stocks = sz.Stocks(['002371'], start='2016-08-01', ktype='D')
-    # stocks.add_technique(MA520Technique)
     stocks.add_tech_strategy(MA520TechStrategy)
     # stocks.plot_kv()
     # plt.show()
@@ -89,7 +88,6 @@ def test7():
 
 def test8():
     stocks = sz.Stocks(['000070', '002380', '600056', '600740', '002371'], start='2016-08-01')
-    # stocks.add_technique(MA520Technique)
     stocks.add_tech_strategy(WaveHisTechStrategy)
     stocks.plot_kv()
     plt.show()
@@ -97,7 +95,6 @@ def test8():
 
 def test9():
     stocks = sz.Stocks(['002371'], start='2016-08-01')
-    # stocks.add_technique(MA520Technique)
     stocks.add_tech_strategy(MultiMATechStrategy)
     stocks.plot_kv()
     plt.show()
@@ -105,7 +102,6 @@ def test9():
 
 def test10():
     stocks = sz.Stocks(['002371'], start='2016-08-01')
-    # stocks.add_technique(MA520Technique)
     stocks.add_tech_strategy(TwoMATechStrategy)
     # stocks.plot_kv()
     # plt.show()
