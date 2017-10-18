@@ -54,7 +54,6 @@ class Stocks:
         for stock in self.stocks:
             tech_strategy = TechStrategy(stock.code)
             stock.add_tech_strategy(tech_strategy, stock.data)
-        self.calc_stocks_trading()
 
     def calc_stocks_trading(self):
         trading_summary = self.trading_summary
@@ -68,11 +67,40 @@ class Stocks:
                 trading = tech_strategy.trading
                 profit_list[-1].append(trading.total - trading.init_total)
 
-        trading_summary.calc_dt['profit'] = np.array(profit_list).T
+        profit_arr = np.array(profit_list).T
+        trading_summary.calc_dt['profit'] = profit_arr
+        trading_summary.sum_dt['profits'] = profit_arr
+        trading_summary.sum_dt['profit'] = np.average(profit_arr, 1)
 
     def stocks_trading_summary(self):
-        for k, v in self.trading_summary.sum_dt.items():
-            print('{0}: {1}')
+        print('#'*20)
+        trading_summary = self.trading_summary
+        print(self.codes)
+        # for i in self.codes:
+        #     print(i, end=' ')
+        # else:
+        #     print()
+        for k, v in trading_summary.sum_dt.items():
+            if not isinstance(v, np.ndarray):
+                v = np.array(v)
+            print('{0}: {1}'.format(k, np.average(v, 0)))
+
+        for i, stg in enumerate(trading_summary.stg_names):
+            print('=' * 10)
+            print(stg)
+            print('-' * 5)
+            for k, v in trading_summary.sum_dt.items():
+                print(k, end=': ')
+                vi = v[i]
+                if not isinstance(vi, np.ndarray) and not isinstance(vi, list) and not isinstance(vi, tuple):
+                    print(vi)
+                else:
+                    print(vi)
+        print('#'*20)
+
+    def summary(self):
+        self.calc_stocks_trading()
+        self.stocks_trading_summary()
 
 
 class Stock:

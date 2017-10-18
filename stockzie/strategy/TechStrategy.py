@@ -55,7 +55,7 @@ class TechStrategy:
         self.data_i = None
 
     def get_name(self):
-        return 'TechStrategy'
+        return self.__class__.__name__
 
     ####################################
 
@@ -128,6 +128,7 @@ class TechStrategy:
         return self.trading.cash
 
     def run(self, data):
+        print('{0} - {1}'.format(self.get_name(), self.__code))
         self._init_trading(data)
         self.__last_day = None
         for i in range(data.shape[0]):
@@ -167,7 +168,7 @@ class TechStrategy:
             # 强行清仓
             self.trading.position_after(data.shape[0] - 1)
 
-        self.trading.trading_summary()
+        # self.trading.trading_summary()
         self.__calc_trading_tech()
 
         return self.__techniques
