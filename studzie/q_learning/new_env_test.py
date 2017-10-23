@@ -65,8 +65,7 @@ if __name__ == '__main__':
     nb_actions = env.action_space.n
 
     model = Sequential()
-    model.add(Flatten(input_shape=(1,) + env.observation_space.shape))
-    model.add(Dense(16))
+    model.add(Dense(16, input_dim=1))
     model.add(Activation('relu'))
     model.add(Dense(16))
     model.add(Activation('relu'))
