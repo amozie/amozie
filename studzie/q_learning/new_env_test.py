@@ -3,11 +3,13 @@ import matplotlib.pyplot as plt
 import gym
 import time
 from prettytable import PrettyTable
+import copy
 
 from keras.models import Sequential, Model
 from keras.layers import Dense, Activation, Flatten, Lambda, Input, Reshape, concatenate
-from keras.optimizers import Adam
+from keras.optimizers import Adam, RMSprop
 from keras import backend as K
+import tensorflow as tf
 
 from gym import Env, Space, spaces
 from gym.utils import seeding
@@ -100,7 +102,7 @@ class TestEnv(Env):
             #     reward = -20
             return np.array(self.state), reward, True, {}
 
-        reward = -5
+        reward = 0
         self.__step += 1
         if self.__step < self.__max_step:
             done = False
@@ -121,45 +123,67 @@ class TestEnv(Env):
         pass
 
 
+def foo(x):
+    # return K.concatenate((K.zeros((K.ndim(x), 1)), x), 1)
+    y1 = K.sum(K.cast(K.equal(x[:, 1:], 1), 'float32'), 1)
+    y2 = K.sum(K.cast(K.equal(x[:, 1:], 2), 'float32'), 1)
+    y = K.not_equal(y1, y2)
+
+    return K.equal(y1, y2)
+
+
 if __name__ == '__main__':
+    state = np.array([2, 0, 0, 0, 0, 1, 2, 1, 0, 0, 1, 1, 0, 0, 0, 2, 2, 1, 0, 0])
     env = TestEnv()
     env.reset()
-    nb_actions = env.action_space.n
 
     x = Input((1,) + env.observation_space.shape)
     y = Flatten()(x)
-    y = Dense(32)(y)
-    y = Activation('relu')(y)
-    y = Dense(32)(y)
-    y = Activation('relu')(y)
-    y = Dense(32)(y)
-    y = Activation('relu')(y)
-    y = Dense(nb_actions)(y)
-    y = Activation('linear')(y)
-    # z = Reshape((10, ))(x)
-    # w = concatenate([y, z])
-    # w = Lambda(lambda x: x)
+    y = Lambda(foo)(y)
     model = Model(x, y)
-    # model = Sequential()
-    # model.add(Flatten(input_shape=(1,) + env.observation_space.shape))
-    # model.add(Dense(64))
-    # model.add(Activation('relu'))
-    # model.add(Dense(64))
-    # model.add(Activation('relu'))
-    # model.add(Dense(64))
-    # model.add(Activation('relu'))
-    # model.add(Dense(nb_actions))
-    # model.add(Activation('linear'))
-    # print(model.summary())
+    model.predict(state.reshape(-1, 1, 10))
 
-    memory = SequentialMemory(limit=5000, window_length=1)
-    policy = BoltzmannQPolicy()
-    dqn = DQNAgent(model=model, nb_actions=nb_actions, memory=memory, nb_steps_warmup=1000,
-                   target_model_update=1e-2, policy=policy)
-    dqn.compile(Adam(lr=1e-3), metrics=['mae'])
-
-    hist = dqn.fit(env, nb_steps=6000, visualize=False, verbose=0)
-
-    plt.plot(hist.history.get('episode_reward'))
-
-    env.step(3)
+# if __name__ == '__main__':
+#     env = TestEnv()
+#     state = env.reset()
+#     nb_actions = env.action_space.n
+#
+#     state = state.reshape(-1, 1, 10)
+#
+#     x = Input((1,) + env.observation_space.shape)
+#     y = Flatten()(x)
+#     y = Lambda(foo)(y)
+#     model = Model(x, y)
+#     model.predict(state.reshape(-1, 1, 10))
+#
+#     y = Dense(32)(y)
+#     y = Activation('relu')(y)
+#     y = Dense(32)(y)
+#     y = Activation('relu')(y)
+#     y = Dense(32)(y)
+#     y = Activation('relu')(y)
+#     y = Dense(nb_actions)(y)
+#     y = Activation('linear')(y)
+#     z = Reshape((10, ))(x)
+#     w = concatenate([y, z])
+#     w = Lambda(lambda x: x[:, :9] + K.cast(K.greater(x[:, 10:], 0), 'float32')*-100)(w)
+#     model = Model(x, w)
+#     model.predict(state.reshape(-1, 1, 10))
+#
+#     memory = SequentialMemory(limit=5000, window_length=1)
+#     policy = BoltzmannQPolicy()
+#     dqn = DQNAgent(model=model, nb_actions=nb_actions, memory=memory, nb_steps_warmup=1000,
+#                    target_model_update=1e-2, policy=policy)
+#     dqn.compile(Adam(lr=1e-3), metrics=['mae'])
+#
+#     hist = dqn.fit(env, nb_steps=6000, visualize=False, verbose=0, nb_max_start_steps=1000, nb_max_episode_steps=9)
+#
+#     plt.plot(hist.history.get('episode_reward'))
+#
+#     state = env.reset()
+#     state = np.array([2,0,0,0,0,1,2,1,0,0, 1,1,0,0,0,2,2,1,0,0])
+#     model.predict(state.reshape(2, 1, 10))
+#     action = np.argmax(model.predict(state.reshape(1, 1, 10))[0])
+#     state, reward, done, _ = env.step(action)
+#     print(action, done)
+#     env.render()
