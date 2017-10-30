@@ -14,7 +14,7 @@ import tensorflow as tf
 from gym import Env, Space, spaces
 from gym.utils import seeding
 from rl.agents.dqn import DQNAgent
-from rl.policy import BoltzmannQPolicy
+from rl.policy import BoltzmannQPolicy, EpsGreedyQPolicy
 from rl.memory import SequentialMemory
 
 
