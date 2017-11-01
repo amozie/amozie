@@ -21,23 +21,25 @@ from rl.memory import SequentialMemory
 class DQNAgentZZ:
     def __init__(self, env) -> None:
         self.gamma = 0.99
-        self.epsilon_greedy = 0.1
+        self.epsilon = 1.0
+        self.epsilon_min = 0.01
 
         self.env = env
         self.input_shape = self.env.observation_space.shape
-        self.input_reshape = (1, ) + self.input_shape
         self.nb_actions = self.env.action_space.n
 
         self.model = None
+        self.trainable_model = None
         self.memory = None
         self.target_list = None
 
+        self.epsilon_decay = None
         self.memory_limit = None
         self.batch_size = None
 
     def _init_model(self):
         model = Sequential()
-        model.add(Dense(16, input_shape=self.env.observation_space.shape))
+        model.add(Dense(16, input_shape=self.input_shape))
         model.add(Activation('relu'))
         model.add(Dense(16))
         model.add(Activation('relu'))
@@ -48,13 +50,37 @@ class DQNAgentZZ:
         print(model.summary())
         self.model = model
 
+        def loss_mask(y_true, y_pred):
+            y_pred_fix = y_pred * np.where(y_true == 0, 0.0, 1.0)
+            return K.mean(K.square(y_pred_fix - y_true), axis=-1)
+
+        self.model.compile(optimizer=Adam(), loss=loss_mask)
+
+        # def clipped_masked_error(args):
+        #     y_true, y_pred, mask = args
+        #     loss = .5 * K.square(y_true - y_pred)
+        #     loss *= mask  # apply element-wise mask
+        #     return K.sum(loss, axis=-1)
+        #
+        # y_true = Input((self.nb_actions, ))
+        # loss = Lambda()([y_true, self.model.output])
+        # train_model = Model([self.model.input, y_true], [])
+        #
+        # y_pred = self.model.output
+        # y_true = Input(name='y_true', shape=(self.nb_actions,))
+        # mask = Input(name='mask', shape=(self.nb_actions,))
+        # loss_out = Lambda(clipped_masked_error, output_shape=(1,), name='loss')([y_pred, y_true, mask])
+        # ins = [self.model.input] if type(self.model.input) is not list else self.model.input
+        # trainable_model = Model(input=ins + [y_true, mask], output=[loss_out, y_pred])
+        # self.trainable_model = trainable_model
+
     def compile(self):
         self._init_model()
-        self.model.compile(Adam(), 'mse')
         self.memory = []
         self.target_list = []
 
-    def fit(self, steps, memory_limit, max_episode_steps=None, batch_size=32):
+    def fit(self, steps, memory_limit, max_episode_steps=None, batch_size=32, decay_episodes=100):
+        self.epsilon_decay = (self.epsilon - self.epsilon_min) / decay_episodes
         self.memory_limit = memory_limit
         self.batch_size = batch_size
         episode = 0
@@ -66,10 +92,16 @@ class DQNAgentZZ:
             step = 0
             while True:
                 step += 1
-                if np.random.uniform() < self.epsilon_greedy:
-                    action = self.env.action_space.sample()
-                else:
-                    action = np.argmax(self.model.predict(state.reshape(self.input_reshape))[0])
+                q_values = self.model.predict(np.array([state.reshape(self.input_shape)]))[0]
+                q_values = q_values.astype('float64')
+                exp_values = np.exp(np.clip(q_values, -500.0, 500.0))
+                probs = exp_values / np.sum(exp_values)
+                action = np.random.choice(len(q_values), p=probs)
+                # GreedyQPolicy
+                # if np.random.uniform() < self.epsilon:
+                #     action = self.env.action_space.sample()
+                # else:
+                #     action = np.argmax(self.model.predict(state.reshape(self.input_reshape))[0])
                 next_state, reward, done, _ = self.env.step(action)
                 if len(self.memory) < self.memory_limit:
                     pass
@@ -95,16 +127,24 @@ class DQNAgentZZ:
     def _replay(self):
         batches_size = min(self.batch_size, len(self.memory))
         batches = np.random.choice(len(self.memory), batches_size)
+        state_batch = []
+        target_batch = []
         for k in batches:
             state_k, action_k, reward_k, next_state_k, done_k = self.memory[k]
             if done_k:
-                target = reward_k
+                dummy_target = reward_k
             else:
-                target = reward_k + self.gamma * np.amax(
-                    self.model.predict(next_state_k.reshape(self.input_reshape))[0])
-            target_f = self.model.predict(state_k.reshape(self.input_reshape))
-            target_f[0][action_k] = target
-            self.model.fit(state_k.reshape(self.input_reshape), target_f, epochs=1, verbose=0)
+                dummy_target = reward_k + self.gamma * np.amax(
+                    self.model.predict(np.array([next_state_k.reshape(self.input_shape)]))[0])
+            target = self.model.predict(np.array([state_k.reshape(self.input_shape)]))[0]
+            target = np.zeros_like(target, 'float32')
+            target[action_k] = dummy_target
+            # self.model.train_on_batch(np.array([state_k.reshape(self.input_shape)]), np.array([target]))
+            state_batch.append(state_k)
+            target_batch.append(target[0])
+        self.model.train_on_batch(np.array(state_batch), np.array(target_batch))
+        if self.epsilon > self.epsilon_min:
+            self.epsilon -= self.epsilon_decay
 
 if __name__ == '__main__':
     ENV_NAME = 'CartPole-v0'
@@ -114,11 +154,11 @@ if __name__ == '__main__':
 
     dqn = DQNAgentZZ(env)
     dqn.compile()
-    dqn.fit(50000, 100000)
+    dqn.fit(50000, 50000)
     plt.plot(dqn.target_list)
 
     state = env.reset()
-    for i in range(200):
+    for i in range(500):
         action = np.argmax(dqn.model.predict(state.reshape(1, 4))[0])
         state, reward, done, _ = env.step(action)
         env.render()
