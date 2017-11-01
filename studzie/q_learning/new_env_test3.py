@@ -49,30 +49,25 @@ class DQNAgentZZ:
         model.add(Activation('linear'))
         print(model.summary())
         self.model = model
+        self.model.compile(optimizer='sgd', loss='mse')
 
-        def loss_mask(y_true, y_pred):
-            y_pred_fix = y_pred * np.where(y_true == 0, 0.0, 1.0)
-            return K.mean(K.square(y_pred_fix - y_true), axis=-1)
+        def clipped_masked_error(args):
+            y_true, y_pred, mask = args
+            loss = .5 * K.square(y_true - y_pred)
+            loss *= mask  # apply element-wise mask
+            return K.sum(loss, axis=-1)
 
-        self.model.compile(optimizer=Adam(), loss=loss_mask)
-
-        # def clipped_masked_error(args):
-        #     y_true, y_pred, mask = args
-        #     loss = .5 * K.square(y_true - y_pred)
-        #     loss *= mask  # apply element-wise mask
-        #     return K.sum(loss, axis=-1)
-        #
-        # y_true = Input((self.nb_actions, ))
-        # loss = Lambda()([y_true, self.model.output])
-        # train_model = Model([self.model.input, y_true], [])
-        #
-        # y_pred = self.model.output
-        # y_true = Input(name='y_true', shape=(self.nb_actions,))
-        # mask = Input(name='mask', shape=(self.nb_actions,))
-        # loss_out = Lambda(clipped_masked_error, output_shape=(1,), name='loss')([y_pred, y_true, mask])
-        # ins = [self.model.input] if type(self.model.input) is not list else self.model.input
-        # trainable_model = Model(input=ins + [y_true, mask], output=[loss_out, y_pred])
-        # self.trainable_model = trainable_model
+        y_pred = self.model.output
+        y_true = Input((self.nb_actions, ))
+        mask = Input((self.nb_actions, ))
+        loss = Lambda(clipped_masked_error, (1, ))([y_pred, y_true, mask])
+        train_model = Model([self.model.input, y_true, mask], [loss, y_pred])
+        losses = [
+            lambda y_true, y_pred: y_pred,  # loss is computed in Lambda layer
+            lambda y_true, y_pred: K.zeros_like(y_pred),  # we only include this for the metrics
+        ]
+        self.train_model = train_model
+        self.train_model.compile(Adam(), loss=losses)
 
     def compile(self):
         self._init_model()
@@ -129,6 +124,8 @@ class DQNAgentZZ:
         batches = np.random.choice(len(self.memory), batches_size)
         state_batch = []
         target_batch = []
+        mask_batch = []
+        dummy_targets = []
         for k in batches:
             state_k, action_k, reward_k, next_state_k, done_k = self.memory[k]
             if done_k:
@@ -139,10 +136,19 @@ class DQNAgentZZ:
             target = self.model.predict(np.array([state_k.reshape(self.input_shape)]))[0]
             target = np.zeros_like(target, 'float32')
             target[action_k] = dummy_target
+            mask = np.zeros_like(target, 'float32')
+            mask[action_k] = 1.0
             # self.model.train_on_batch(np.array([state_k.reshape(self.input_shape)]), np.array([target]))
             state_batch.append(state_k)
-            target_batch.append(target[0])
-        self.model.train_on_batch(np.array(state_batch), np.array(target_batch))
+            target_batch.append(target)
+            mask_batch.append(mask)
+            dummy_targets.append(dummy_target)
+        state_batch = np.array(state_batch)
+        target_batch = np.array(target_batch)
+        mask_batch = np.array(mask_batch)
+        dummy_targets = np.array(dummy_targets)
+        self.train_model.train_on_batch([state_batch, target_batch, mask_batch],
+                                        [dummy_targets, target_batch])
         if self.epsilon > self.epsilon_min:
             self.epsilon -= self.epsilon_decay
 
