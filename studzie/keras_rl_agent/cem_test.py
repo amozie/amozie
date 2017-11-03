@@ -20,7 +20,7 @@ from rl.agents.cem import CEMAgent
 from rl.agents import SARSAAgent
 
 
-env = gym.make('Acrobot-v1')
+env = gym.make('CartPole-v0')
 env.seed()
 nb_actions = env.action_space.n
 
@@ -36,26 +36,23 @@ y = Dense(nb_actions)(y)
 y = Activation('linear')(y)
 model = Model(x, y)
 
-memory = SequentialMemory(limit=50000, window_length=1)
-policy = BoltzmannQPolicy()
-# dqn = DQNAgent(model=model, nb_actions=nb_actions, memory=memory, nb_steps_warmup=10,
-#                target_model_update=1e-2, policy=policy)
-dqn = DQNAgent(model=model, nb_actions=nb_actions, memory=memory, nb_steps_warmup=10,
-               enable_dueling_network=True, dueling_type='max', target_model_update=1e-2, policy=policy)
-dqn.compile(Adam(lr=1e-3), metrics=['mae'])
+memory = EpisodeParameterMemory(limit=50000, window_length=1)
+cem = CEMAgent(model=model, nb_actions=nb_actions, memory=memory,
+               nb_steps_warmup=2000, batch_size=50, train_interval=50, elite_frac=0.05)
+cem.compile()
 
 rewards = []
-hist = dqn.fit(env, nb_steps=50000, visualize=False, verbose=2)
+hist = cem.fit(env, nb_steps=50000, visualize=False, verbose=2)
 rewards.extend(hist.history.get('episode_reward'))
 plt.plot(rewards)
 
-dqn.test(env, nb_episodes=5, visualize=True)
+cem.test(env, nb_episodes=5, visualize=True)
 
 state = env.reset()
 action = env.action_space.sample()
 print(action)
 for i in range(500):
-    action = np.argmax(dqn.model.predict(state.reshape(1, 1, 6))[0])
+    action = np.argmax(cem.model.predict(state.reshape(1, 1, 6))[0])
     state, reward, done, _ = env.step(action)
     env.render()
 env.render(close=True)
