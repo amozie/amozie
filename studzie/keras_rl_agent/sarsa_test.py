@@ -20,28 +20,28 @@ from rl.agents.cem import CEMAgent
 from rl.agents import SARSAAgent
 
 
-env = gym.make('Acrobot-v0')
+env = gym.make('MountainCar-v0')
 env.seed()
 nb_actions = env.action_space.n
 
 x = Input((1,) + env.observation_space.shape)
 y = Flatten()(x)
-y = Dense(16)(y)
+y = Dense(24)(y)
 y = Activation('relu')(y)
-y = Dense(16)(y)
+y = Dense(24)(y)
 y = Activation('relu')(y)
-y = Dense(16)(y)
+y = Dense(24)(y)
 y = Activation('relu')(y)
 y = Dense(nb_actions)(y)
 y = Activation('linear')(y)
 model = Model(x, y)
 
-policy = BoltzmannQPolicy()
-sarsa = SARSAAgent(model=model, nb_actions=nb_actions, nb_steps_warmup=10, policy=policy)
-sarsa.compile(Adam(lr=1e-3), metrics=['mae'])
+policy = EpsGreedyQPolicy()
+sarsa = SARSAAgent(model=model, nb_actions=nb_actions, nb_steps_warmup=10000, policy=policy, gamma=.85)
+sarsa.compile(Adam(lr=.3, decay=.001), metrics=['mae'])
 
 rewards = []
-hist = sarsa.fit(env, nb_steps=50000, visualize=False, verbose=2)
+hist = sarsa.fit(env, nb_steps=100000, visualize=False, verbose=2)
 rewards.extend(hist.history.get('episode_reward'))
 plt.plot(rewards)
 

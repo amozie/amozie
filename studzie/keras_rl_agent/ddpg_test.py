@@ -2,15 +2,16 @@ import numpy as np
 import gym
 
 from keras.models import Sequential, Model
-from keras.layers import Dense, Activation, Flatten, Input, merge
+from keras.layers import Dense, Activation, Flatten, Input, merge, Lambda
 from keras.optimizers import Adam
+from keras import backend as K
 
 from rl.agents import DDPGAgent
 from rl.memory import SequentialMemory
 from rl.random import OrnsteinUhlenbeckProcess
 
 
-ENV_NAME = 'Continuous MountainCar-v1'
+ENV_NAME = 'MountainCar-v0'
 gym.undo_logger_setup()
 
 
@@ -32,7 +33,10 @@ actor.add(Dense(16))
 actor.add(Activation('relu'))
 actor.add(Dense(nb_actions))
 actor.add(Activation('linear'))
+actor.add(Lambda(lambda x: K.cast(K.expand_dims(K.argmax(x, 1)), 'float32')))
 print(actor.summary())
+
+nb_actions = 1
 
 action_input = Input(shape=(nb_actions,), name='action_input')
 observation_input = Input(shape=(1,) + env.observation_space.shape, name='observation_input')
@@ -61,10 +65,10 @@ agent.compile(Adam(lr=.001, clipnorm=1.), metrics=['mae'])
 # Okay, now it's time to learn something! We visualize the training here for show, but this
 # slows down training quite a lot. You can always safely abort the training prematurely using
 # Ctrl + C.
-agent.fit(env, nb_steps=50000, visualize=True, verbose=1, nb_max_episode_steps=200)
+agent.fit(env, nb_steps=50000, visualize=False, verbose=2, nb_max_episode_steps=200)
 
 # After training is done, we save the final weights.
-agent.save_weights('ddpg_{}_weights.h5f'.format(ENV_NAME), overwrite=True)
+# agent.save_weights('ddpg_{}_weights.h5f'.format(ENV_NAME), overwrite=True)
 
 # Finally, evaluate our algorithm for 5 episodes.
 agent.test(env, nb_episodes=5, visualize=True, nb_max_episode_steps=200)
