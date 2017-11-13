@@ -12,16 +12,16 @@ from skimage import transform, color
 from keras.optimizers import RMSprop, Adam
 from keras import backend as K
 from keras.utils.vis_utils import plot_model
+from keras.utils import to_categorical
 
+(X_train, y_train), (X_test, y_test) = mnist.load_data()
+y_train = to_categorical(y_train)
+y_test = to_categorical(y_test)
+plt.imshow(X_train[0:9].reshape(3, 3, 28, 28).transpose(0, 2, 1, 3).reshape(28*3, 28*3), 'gray')
 
-mnist = input_data.read_data_sets('./dataset/', one_hot=True)
-images = mnist.train.images
-labels = mnist.train.labels
-images_test = mnist.test.images
-labels_test = mnist.test.labels
-plt.imshow(images[0:9].reshape(28*9, 28), 'gray')
+input_tensor = Input((28, 28, 3))
 
-vgg16 = VGG16(weights='imagenet', include_top=False)
+vgg16 = VGG16(weights='imagenet', include_top=True)
 y = vgg16.output
 y = GlobalMaxPooling2D()(y)
 y = Dense(256)(y)
@@ -31,8 +31,7 @@ y = Dense(10)(y)
 y = Activation('softmax')(y)
 model = Model(vgg16.input, y)
 
-img = images[0]
-img = img.reshape(28, 28)
+img = X_train[0]
 img = transform.resize(img, (224, 224))
 img = color.gray2rgb(img)
 plt.imshow(img)
@@ -57,7 +56,6 @@ def img_generator_one(images, labels):
         i = np.random.choice(images.shape[0])
         image = images[i]
         label = labels[i]
-        image = image.reshape((28, 28))
         image = transform.resize(image, (224, 224))
         image = color.gray2rgb(image)
         yield np.expand_dims(image, 0), np.expand_dims(label, 0)
@@ -71,12 +69,14 @@ for layer in vgg16.layers[-4:]:
 for layer in model.layers:
     print(layer.trainable, end=' ')
 
+model.compile(Adam(1e-3), 'categorical_crossentropy', ['accuracy'])
+
 model.compile(Adam(1e-4), 'categorical_crossentropy', ['accuracy'])
 
-hist = model.fit_generator(img_generator_one(images, labels), 32, 100, verbose=2,
-                           validation_data=img_generator_one(images_test, labels_test),
+hist = model.fit_generator(img_generator_one(X_train, y_train), 32, 100, verbose=2,
+                           validation_data=img_generator_one(X_test, y_test),
                            validation_steps=32)
 
-model.evaluate_generator(img_generator_one(images_test, labels_test), 64)
+model.evaluate_generator(img_generator_one(X_test, y_test), 64)
 
 plot_model(vgg16, to_file='model_0.png', show_shapes=True)
