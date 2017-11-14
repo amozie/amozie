@@ -5,7 +5,6 @@ from keras.models import Sequential, Model
 from keras.layers import Dense, Activation, Input, Dropout, GlobalAveragePooling2D, \
     Flatten, RepeatVector, Permute, Reshape, GlobalMaxPooling2D
 from keras.datasets import mnist
-from tensorflow.examples.tutorials.mnist import input_data
 from keras.callbacks import EarlyStopping
 from keras.preprocessing.image import ImageDataGenerator
 from skimage import transform, color
@@ -19,17 +18,17 @@ y_train = to_categorical(y_train)
 y_test = to_categorical(y_test)
 plt.imshow(X_train[0:9].reshape(3, 3, 28, 28).transpose(0, 2, 1, 3).reshape(28*3, 28*3), 'gray')
 
-input_tensor = Input((28, 28, 3))
-
-vgg16 = VGG16(weights='imagenet', include_top=True)
+vgg16 = VGG16(weights='imagenet', include_top=False)
 y = vgg16.output
 y = GlobalMaxPooling2D()(y)
+# y = Flatten()(y)
 y = Dense(256)(y)
 y = Activation('relu')(y)
 y = Dropout(0.5)(y)
 y = Dense(10)(y)
 y = Activation('softmax')(y)
 model = Model(vgg16.input, y)
+model.summary()
 
 img = X_train[0]
 img = transform.resize(img, (224, 224))
@@ -73,10 +72,10 @@ model.compile(Adam(1e-3), 'categorical_crossentropy', ['accuracy'])
 
 model.compile(Adam(1e-4), 'categorical_crossentropy', ['accuracy'])
 
-hist = model.fit_generator(img_generator_one(X_train, y_train), 32, 100, verbose=2,
+hist = model.fit_generator(img_generator_one(X_train, y_train), 32, 10, verbose=2,
                            validation_data=img_generator_one(X_test, y_test),
                            validation_steps=32)
 
-model.evaluate_generator(img_generator_one(X_test, y_test), 64)
+model.evaluate_generator(img_generator_one(X_test, y_test), 32)
 
 plot_model(vgg16, to_file='model_0.png', show_shapes=True)

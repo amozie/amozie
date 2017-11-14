@@ -1,11 +1,15 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from keras.models import Sequential, Model
-from keras.layers import Dense, Activation, Input, Dropout, Flatten, Reshape, Conv2D, MaxPooling2D
+from keras.layers import Dense, Activation, Input, Dropout, Flatten, Reshape, \
+    Conv2D, MaxPooling2D, concatenate, GlobalMaxPooling2D
 from keras.datasets import cifar10
 from keras.callbacks import EarlyStopping
 from keras.utils import to_categorical, plot_model
 from keras.optimizers import Adam
+from keras.applications.vgg16 import VGG16
+from skimage import transform, color
+from keras.preprocessing import image
 
 (X_train, y_train), (X_test, y_test) = cifar10.load_data()
 y_train = to_categorical(y_train)
@@ -13,12 +17,19 @@ y_test = to_categorical(y_test)
 plt.imshow(X_train[0:9].reshape(3, 3, 32, 32, 3).swapaxes(1, 2).reshape(32*3, 32*3, 3))
 
 x = Input((32, 32, 3))
-y = Conv2D(32, (5, 5))(x)
-y = Conv2D(32, (5, 5))(y)
+y = Conv2D(32, (3, 3), padding='same')(x)
+y = Activation('relu')(y)
+y = Conv2D(32, (3, 3), padding='same')(y)
 y = Activation('relu')(y)
 y = MaxPooling2D()(y)
-y = Conv2D(64, (5, 5))(y)
-y = Conv2D(64, (5, 5))(y)
+y = Conv2D(64, (3, 3), padding='same')(y)
+y = Activation('relu')(y)
+y = Conv2D(64, (3, 3), padding='same')(y)
+y = Activation('relu')(y)
+y = MaxPooling2D()(y)
+y = Conv2D(64, (3, 3), padding='same')(y)
+y = Activation('relu')(y)
+y = Conv2D(64, (3, 3), padding='same')(y)
 y = Activation('relu')(y)
 y = MaxPooling2D()(y)
 y = Flatten()(y)
@@ -32,4 +43,40 @@ model.summary()
 
 model.compile(Adam(), 'categorical_crossentropy', ['accuracy'])
 
-hist = model.fit(X_train, y_train, epochs=10, validation_data=(X_test, y_test), verbose=2)
+hist = model.fit(X_train, y_train, epochs=2, validation_data=(X_test, y_test), verbose=2)
+
+##########################
+
+x = Input((32, 32, 3))
+y1 = Conv2D(16, (1, 1), padding='same')(x)
+y1 = Activation('relu')(y1)
+y1 = Conv2D(16, (3, 3), padding='same')(y1)
+y1 = Activation('relu')(y1)
+
+y2 = Conv2D(16, (1, 1), padding='same')(x)
+y2 = Activation('relu')(y2)
+y2 = Conv2D(16, (5, 5), padding='same')(y2)
+y2 = Activation('relu')(y2)
+
+y3 = MaxPooling2D(strides=(1, 1), padding='same')(x)
+y3 = Conv2D(16, (1, 1), padding='same')(y3)
+y3 = Activation('relu')(y3)
+y = concatenate([y1, y2, y3], axis=1)
+
+y = Conv2D(16, (1, 1), padding='same')(y)
+y = Activation('relu')(y)
+y = Conv2D(16, (5, 5), padding='same')(y)
+y = Activation('relu')(y)
+
+y = MaxPooling2D()(y)
+y = Flatten()(y)
+y = Dense(2048)(y)
+y = Activation('relu')(y)
+y = Dropout(0.5)(y)
+y = Dense(10)(y)
+y = Activation('softmax')(y)
+
+model = Model(x, y)
+model.summary()
+
+#########################

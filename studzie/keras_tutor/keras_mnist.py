@@ -3,7 +3,6 @@ import matplotlib.pyplot as plt
 from keras.models import Sequential, Model
 from keras.layers import Dense, Activation, Input, Dropout, Flatten
 from keras.datasets import mnist
-from tensorflow.examples.tutorials.mnist import input_data
 from keras.callbacks import EarlyStopping
 from keras.utils import to_categorical, plot_model
 from keras.optimizers import Adam
