@@ -34,7 +34,7 @@ class MountainCarEnv(Env):
     def _step(self, action):
         step = self.env.step(action)
         step = list(step)
-        step[1] = np.abs(step[0][1])
+        step[1] = np.abs(step[0][1]) - 0.05
         return tuple(step)
 
     def _reset(self):
@@ -65,13 +65,14 @@ y = Dense(nb_actions)(y)
 y = Activation('linear')(y)
 model = Model(x, y)
 
-memory = SequentialMemory(limit=50000, window_length=1)
+memory = SequentialMemory(limit=20000, window_length=1)
+# policy = BoltzmannQPolicy()
 policy = EpsGreedyQPolicy()
 dqn = DQNAgent(model=model, nb_actions=nb_actions, memory=memory, nb_steps_warmup=1000, gamma=.9,
                enable_dueling_network=False, dueling_type='avg', target_model_update=.1, policy=policy)
 dqn.compile(Adam(), metrics=['mae'])
 
-hist = dqn.fit(env, nb_steps=50000, visualize=False, verbose=2, callbacks=None)
+hist = dqn.fit(env, nb_steps=20000, visualize=False, verbose=1, callbacks=None)
 
 state = env.reset()
 action = env.action_space.sample()
@@ -79,7 +80,7 @@ print(action)
 state_list= []
 for i in range(500):
     action = np.argmax(dqn.model.predict(np.expand_dims(np.expand_dims(state, 0), 0))[0])
-    state, reward, done, _ = env.step(action)
+    state, reward, done, _ = env.step(2)
     state_list.append(reward)
     env.render()
 env.render(close=True)
