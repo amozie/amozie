@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from keras.models import Sequential, Model
 from keras.layers import Dense, Activation, Input, Dropout, Flatten, Reshape, \
-    Conv2D, MaxPooling2D, concatenate, GlobalMaxPooling2D
+    Conv2D, MaxPooling2D, concatenate, GlobalMaxPooling2D, BatchNormalization, AveragePooling2D
 from keras.datasets import cifar10
 from keras.callbacks import EarlyStopping
 from keras.utils import to_categorical, plot_model
@@ -43,7 +43,8 @@ model.summary()
 
 model.compile(Adam(), 'categorical_crossentropy', ['accuracy'])
 
-hist = model.fit(X_train, y_train, epochs=2, validation_data=(X_test, y_test), verbose=2)
+hist = model.fit(X_train, y_train, epochs=1, validation_data=(X_test, y_test), verbose=1)
+plt.plot()
 
 ##########################
 
@@ -80,3 +81,111 @@ model = Model(x, y)
 model.summary()
 
 #########################
+
+x = Input((32, 32, 3))
+y = Conv2D(32, (3, 3), padding='same')(x)
+y = BatchNormalization()(y)
+y = Activation('relu')(y)
+y = Conv2D(32, (3, 3), padding='same')(y)
+y = BatchNormalization()(y)
+y = Activation('relu')(y)
+y = MaxPooling2D((3, 3), 2, padding='same')(y)
+y = Conv2D(64, (3, 3), padding='same')(y)
+y = BatchNormalization()(y)
+y = Activation('relu')(y)
+y = Conv2D(64, (3, 3), padding='same')(y)
+y = BatchNormalization()(y)
+y = Activation('relu')(y)
+y = MaxPooling2D((3, 3), 2, padding='same')(y)
+
+z1 = Conv2D(24, (1, 1))(y)
+z1 = BatchNormalization()(z1)
+z1 = Activation('relu')(z1)
+
+z2 = AveragePooling2D((1, 1))(y)
+z2 = Conv2D(24, (1, 1))(z2)
+z2 = BatchNormalization()(z2)
+z2 = Activation('relu')(z2)
+
+z3 = Conv2D(24, (1, 1))(y)
+z3 = BatchNormalization()(z3)
+z3 = Activation('relu')(z3)
+z3 = Conv2D(24, (3, 3), padding='same')(z3)
+z3 = BatchNormalization()(z3)
+z3 = Activation('relu')(z3)
+
+z4 = Conv2D(24, (1, 1))(y)
+z4 = BatchNormalization()(z4)
+z4 = Activation('relu')(z4)
+z4 = Conv2D(24, (3, 3), padding='same')(z4)
+z4 = BatchNormalization()(z4)
+z4 = Activation('relu')(z4)
+z4 = Conv2D(24, (3, 3), padding='same')(z4)
+z4 = BatchNormalization()(z4)
+z4 = Activation('relu')(z4)
+
+y = concatenate([z1, z2, z3, z4])
+
+z1 = Conv2D(24, (1, 1))(y)
+z1 = BatchNormalization()(z1)
+z1 = Activation('relu')(z1)
+
+z2 = AveragePooling2D((1, 1))(y)
+z2 = Conv2D(24, (1, 1))(z2)
+z2 = BatchNormalization()(z2)
+z2 = Activation('relu')(z2)
+
+z3 = Conv2D(24, (1, 1))(y)
+z3 = BatchNormalization()(z3)
+z3 = Activation('relu')(z3)
+z3 = Conv2D(24, (3, 3), padding='same')(z3)
+z3 = BatchNormalization()(z3)
+z3 = Activation('relu')(z3)
+
+z4 = Conv2D(24, (1, 1))(y)
+z4 = BatchNormalization()(z4)
+z4 = Activation('relu')(z4)
+z4 = Conv2D(24, (3, 3), padding='same')(z4)
+z4 = BatchNormalization()(z4)
+z4 = Activation('relu')(z4)
+z4 = Conv2D(24, (3, 3), padding='same')(z4)
+z4 = BatchNormalization()(z4)
+z4 = Activation('relu')(z4)
+
+y = concatenate([z1, z2, z3, z4])
+
+z1 = Conv2D(24, (1, 1))(y)
+z1 = BatchNormalization()(z1)
+z1 = Activation('relu')(z1)
+
+z2 = AveragePooling2D((1, 1))(y)
+z2 = Conv2D(24, (1, 1))(z2)
+z2 = BatchNormalization()(z2)
+z2 = Activation('relu')(z2)
+
+z3 = Conv2D(24, (1, 1))(y)
+z3 = BatchNormalization()(z3)
+z3 = Activation('relu')(z3)
+z3 = Conv2D(24, (3, 3), padding='same')(z3)
+z3 = BatchNormalization()(z3)
+z3 = Activation('relu')(z3)
+
+z4 = Conv2D(24, (1, 1))(y)
+z4 = BatchNormalization()(z4)
+z4 = Activation('relu')(z4)
+z4 = Conv2D(24, (3, 3), padding='same')(z4)
+z4 = BatchNormalization()(z4)
+z4 = Activation('relu')(z4)
+z4 = Conv2D(24, (3, 3), padding='same')(z4)
+z4 = BatchNormalization()(z4)
+z4 = Activation('relu')(z4)
+
+y = concatenate([z1, z2, z3, z4])
+y = GlobalMaxPooling2D()(y)
+y = Dense(10)(y)
+y = Activation('softmax')(y)
+
+model = Model(x, y)
+model.summary()
+
+plot_model(model, show_shapes=True)

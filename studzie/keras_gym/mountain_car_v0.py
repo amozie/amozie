@@ -65,14 +65,14 @@ y = Dense(nb_actions)(y)
 y = Activation('linear')(y)
 model = Model(x, y)
 
-memory = SequentialMemory(limit=20000, window_length=1)
+memory = SequentialMemory(limit=10000, window_length=1)
 # policy = BoltzmannQPolicy()
 policy = EpsGreedyQPolicy()
 dqn = DQNAgent(model=model, nb_actions=nb_actions, memory=memory, nb_steps_warmup=1000, gamma=.9,
                enable_dueling_network=False, dueling_type='avg', target_model_update=.1, policy=policy)
 dqn.compile(Adam(), metrics=['mae'])
 
-hist = dqn.fit(env, nb_steps=20000, visualize=False, verbose=1, callbacks=None)
+hist = dqn.fit(env, nb_steps=10000, visualize=False, verbose=1, callbacks=None)
 
 state = env.reset()
 action = env.action_space.sample()
