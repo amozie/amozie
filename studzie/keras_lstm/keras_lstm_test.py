@@ -3,7 +3,6 @@ import matplotlib.pyplot as plt
 
 import gym
 import time
-from prettytable import PrettyTable
 import copy
 import tushare as ts
 

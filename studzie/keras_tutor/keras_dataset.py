@@ -3,6 +3,7 @@ from keras.datasets import cifar100
 from keras.datasets import imdb
 from keras.datasets import reuters
 from keras.datasets import mnist
+from keras.datasets import fashion_mnist
 from keras.datasets import boston_housing
 from keras.utils import to_categorical
 
@@ -15,6 +16,8 @@ from keras.utils import to_categorical
 (X_train, y_train), (X_test, y_test) = reuters.load_data()
 
 (X_train, y_train), (X_test, y_test) = mnist.load_data()
+
+(X_train, y_train), (X_test, y_test) = fashion_mnist.load_data()
 
 (x_train, y_train), (x_test, y_test) = boston_housing.load_data()
 
