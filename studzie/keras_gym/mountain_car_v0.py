@@ -3,7 +3,6 @@ import matplotlib.pyplot as plt
 
 import gym
 import time
-from prettytable import PrettyTable
 import copy
 
 from keras.models import Sequential, Model
@@ -68,11 +67,11 @@ model = Model(x, y)
 memory = SequentialMemory(limit=10000, window_length=1)
 # policy = BoltzmannQPolicy()
 policy = EpsGreedyQPolicy()
-dqn = DQNAgent(model=model, nb_actions=nb_actions, memory=memory, nb_steps_warmup=1000, gamma=.9,
+dqn = DQNAgent(model=model, nb_actions=nb_actions, memory=memory, nb_steps_warmup=1000, gamma=.9, batch_size=32,
                enable_dueling_network=False, dueling_type='avg', target_model_update=.1, policy=policy)
 dqn.compile(Adam(), metrics=['mae'])
 
-hist = dqn.fit(env, nb_steps=10000, visualize=False, verbose=1, callbacks=None)
+hist = dqn.fit(env, nb_steps=10000, visualize=False, verbose=2, callbacks=None)
 
 state = env.reset()
 action = env.action_space.sample()
