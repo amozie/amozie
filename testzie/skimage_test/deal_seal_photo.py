@@ -6,6 +6,7 @@ from skimage import data, draw, color, transform, feature, measure, \
 image = io.imread('./testzie/dataset/seal_real.jpg')
 image = io.imread('./testzie/dataset/seal_bad.jpg')
 image = io.imread('./testzie/dataset/seal.jpg')
+image = io.imread('./testzie/dataset/seal_fuck.jpg')
 
 # image_gray = color.rgb2gray(image)
 image_gray = (255 - np.dot(image, [0, 1/2, 1/2])).astype('uint8')
@@ -21,6 +22,8 @@ bw = image_gray > thresh
 # bw = morphology.opening(bw, morphology.square(3))
 plt.imshow(image_gray)
 plt.imshow(bw)
+
+np.meshgrid()
 
 image_gray_fix = image_gray - image_gray.min()
 image_gray_fix = image_gray_fix / image_gray_fix.max()

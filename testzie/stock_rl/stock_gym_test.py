@@ -19,6 +19,7 @@ from rl.agents.dqn import DQNAgent
 from rl.policy import BoltzmannQPolicy
 from rl.memory import SequentialMemory
 
+
 class StockEnv(Env):
     metadata = {'render.modes': ['human', 'ansi']}
 

@@ -3,7 +3,6 @@ import matplotlib.pyplot as plt
 
 import gym
 import time
-from prettytable import PrettyTable
 import copy
 
 from keras.models import Sequential, Model
@@ -23,7 +22,8 @@ from rl.agents import SARSAAgent
 from rl.callbacks import TrainEpisodeLogger, CallbackList
 
 
-env = gym.make('MountainCar-v0')
+# env = gym.make('MountainCar-v0')
+env = gym.make('CartPole-v1')
 env.seed()
 nb_actions = env.action_space.n
 
@@ -39,18 +39,18 @@ y = Dense(nb_actions)(y)
 y = Activation('linear')(y)
 model = Model(x, y)
 
-memory = SequentialMemory(limit=50000, window_length=1)
+memory = SequentialMemory(limit=10000, window_length=1)
 # policy = BoltzmannQPolicy()
 policy = EpsGreedyQPolicy()
-dqn = DQNAgent(model=model, nb_actions=nb_actions, memory=memory, nb_steps_warmup=10000, gamma=.9,
-               enable_dueling_network=False, dueling_type='avg', target_model_update=.1, policy=policy)
+dqn = DQNAgent(model=model, nb_actions=nb_actions, memory=memory, nb_steps_warmup=1000, gamma=.9,
+               enable_dueling_network=False, dueling_type='avg', target_model_update=1e-2, policy=policy)
 # dqn = DQNAgent(model=model, nb_actions=nb_actions, memory=memory, nb_steps_warmup=10,
 #                enable_dueling_network=True, dueling_type='avg', target_model_update=1e-2, policy=policy)
-dqn.compile(Adam(lr=.01, decay=.001), metrics=['mae'])
+dqn.compile(Adam(lr=.001, decay=.001), metrics=['mae'])
 
 rewards = []
 callback = [TrainEpisodeLogger(), History()]
-hist = dqn.fit(env, nb_steps=100000, visualize=False, verbose=2, callbacks=None)
+hist = dqn.fit(env, nb_steps=10000, visualize=False, verbose=2, callbacks=None)
 rewards.extend(hist.history.get('episode_reward'))
 plt.plot(rewards)
 
