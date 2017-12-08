@@ -13,6 +13,7 @@ diff = series.diff(12)[12:]
 
 # 自相关图
 plot_acf(diff)
+plot_pacf(diff)
 
 # 创建一系列滞后数据
 df = pd.DataFrame()

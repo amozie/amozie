@@ -15,6 +15,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.svm import SVC
 from sklearn import metrics
+from sklearn.feature_selection import RFE
 
 (X_train, y_train), (X_test, y_test) = mnist.load_data()
 y_train = to_categorical(y_train)
@@ -64,10 +65,14 @@ y_pred = model.predict(X_test)
 metrics.accuracy_score(y_test, y_pred)
 
 # 随机森林
-model = RandomForestClassifier(17)
+model = RandomForestClassifier()
 model.fit(X_train, y_train)
 y_pred = model.predict(X_test)
 metrics.accuracy_score(y_test, y_pred)
+
+feature = model.feature_importances_
+plt.bar(np.arange(1, feature.size + 1), feature)
+plt.imshow(feature.reshape(28, 28))
 
 # 决策树
 model = DecisionTreeClassifier()
@@ -87,3 +92,6 @@ model.fit(X_train, y_train)
 y_pred = model.predict(X_test)
 metrics.accuracy_score(y_test, y_pred)
 
+# RFE 特征选择
+model = RFE(RandomForestClassifier())
+fit = model.fit(X_train, y_train_arg)
