@@ -19,6 +19,7 @@ from keras.utils import to_categorical
 
 (X_train, y_train), (X_test, y_test) = fashion_mnist.load_data()
 
-(x_train, y_train), (x_test, y_test) = boston_housing.load_data()
+(X_train, y_train), (X_test, y_test) = boston_housing.load_data()
 
 y_train = to_categorical(y_train)
+y_test = to_categorical(y_test)

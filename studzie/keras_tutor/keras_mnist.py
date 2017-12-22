@@ -29,3 +29,5 @@ model.compile(Adam(), 'categorical_crossentropy', ['accuracy'])
 
 hist = model.fit(X_train, y_train, epochs=20, validation_data=(X_test, y_test), verbose=2, batch_size=32,
                  callbacks=[TensorBoard('c:/users/dell/appdata/local/temp/tf.log')])
+
+hist = model.fit(X_train, y_train, epochs=20, validation_data=(X_test, y_test), verbose=2, batch_size=32)

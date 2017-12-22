@@ -18,7 +18,7 @@ y_train = to_categorical(y_train)
 y_test = to_categorical(y_test)
 plt.imshow(X_train[0:9].reshape(3, 3, 28, 28).transpose(0, 2, 1, 3).reshape(28*3, 28*3), 'gray')
 
-vgg16 = VGG16(weights='imagenet', include_top=False)
+vgg16 = VGG16(weights='imagenet', include_top=True)
 y = vgg16.output
 y = GlobalMaxPooling2D()(y)
 # y = Flatten()(y)
@@ -78,4 +78,4 @@ hist = model.fit_generator(img_generator_one(X_train, y_train), 32, 10, verbose=
 
 model.evaluate_generator(img_generator_one(X_test, y_test), 32)
 
-plot_model(vgg16, to_file='model_0.png', show_shapes=True)
+plot_model(vgg16, to_file='vgg16_top.png', show_shapes=True)
