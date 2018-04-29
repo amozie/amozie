@@ -61,12 +61,3 @@ try:
             losses_test.append(losses_test)
 except tf.errors.OutOfRangeError:
     pass
-
-dataset = tf.data.Dataset.from_tensor_slices((list(range(0, 100)), list(range(100, 200))))
-it = dataset.shuffle(100).batch(3).repeat(2).make_one_shot_iterator()
-
-sess.run(it.get_next())
-
-keras.Model().evaluate()
-
-tl.utils.evaluation()
